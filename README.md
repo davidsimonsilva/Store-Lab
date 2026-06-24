@@ -2,7 +2,7 @@
 
 ## 🌐 Link do Site
 Acesse a aplicação publicada em produção:
-* **Produção:** [https://seu-link-da-vercel.vercel.app](https://seu-link-da-vercel.vercel.app) *(substitua por seu link após realizar o deploy)*
+* **Produção:** [https://vercel.com/](https://vercel.com/)
 
 ## Como Rodar e Acessar o Projeto
 
@@ -47,11 +47,12 @@ O aplicativo apresenta uma interface elegante, com foco em usabilidade, animaç�
 
 2. **Ficha de Detalhes do Produto (`ProductDetailView`)**:
    * Detalhamento estruturado das características do produto, preços, avaliações e opiniões de clientes.
-   * Módulo interativo para cálculo estimativo de fretes e prazo de entrega.
-   * Galeria de fotos responsiva e seletor de quantidades.
+   * Módulo de avaliações formatado com visualização de barras de porcentagem por quantidade de estrelas.
+   * Galeria de fotos responsiva e seletor de quantidades para adicionar produtos livremente ao carrinho.
 
 3. **Carrinho Híbrido (`CartView`)**:
-   * **Fluxo de Convidado:** Permite adicionar itens ao carrinho e simular a compra sem necessidade de cadastro imediato.
+   * **Fluxo de Convidado:** Permite adicionar itens ao carrinho livremente sem necessidade de cadastro imediato.
+   * **Autenticação Obrigatória no Checkout:** Ao finalizar a compra no carrinho, caso o usuário não esteja autenticado, um diálogo amigável é exibido para solicitar o login ou cadastro de conta.
    * **Sincronização Inteligente:** Consolida e vincula automaticamente os produtos do carrinho à conta do usuário no momento em que ele faz login ou cadastro.
    * Persistência garantida localmente com `localStorage` para manter os itens salvos ao atualizar ou retornar ao site.
 
@@ -61,12 +62,12 @@ O aplicativo apresenta uma interface elegante, com foco em usabilidade, animaç�
 
 5. **Portal do Cliente (`ProfileView`)**:
    * Painel geral para atualizar dados cadastrais e de entrega.
-   * Histórico detalhado de pedidos anteriores com status dinâmico e acompanhamento logístico.
 
 ### 🛠️ Decisões de Arquitetura e Engenharia
 
 * **Single-Page Application (SPA) em React**: Navegação instantânea e suave entre as visões com roteamento interno eficiente.
 * **Componentização Reutilizável**: UI organizada e modular (carrinho, cartões de produtos, rodapé e cabeçalho dinâmicos).
+* **Identidade Visual Personalizada**: Uso consistente do logo com ícone de frasco de laboratório (`FlaskConical`) e paleta de cores moderna (azul e ardósia) configurada sob o Material-UI.
 * **Camada de Estado Centralizada (React Context)**: Sincronização em tempo real de produtos, carrinho, status de autenticação e fluxos de usuário.
 * **MUI (Material-UI)**: Design system robusto, garantindo consistência visual, total responsividade em smartphones, tablets e desktops, além de ótimos padrões de acessibilidade.
 * **Formik & Yup**: Gerenciamento de formulários e validações de dados limpos, declarativos e consistentes.
