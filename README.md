@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Store-lab e-Commerce
 
-## Getting Started
+## 🌐 Link do Site
+Acesse a aplicação publicada em produção:
+* **Produção:** [https://seu-link-da-vercel.vercel.app](https://seu-link-da-vercel.vercel.app) *(substitua por seu link após realizar o deploy)*
 
-First, run the development server:
+## Como Rodar e Acessar o Projeto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Este projeto utiliza o ambiente moderno de desenvolvimento em React com TypeScript. Siga os passos abaixo para executá-lo em sua máquina local:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Pré-requisitos
+* **Node.js** (versão 18 ou superior recomendado)
+* **npm** (gerenciador de pacotes do Node)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Passo a Passo para Inicialização
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Instalar Dependências**
+   Instale todas as dependências declaradas no projeto executando no seu terminal:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+2. **Iniciar o Servidor de Desenvolvimento**
+   Execute o script de desenvolvimento para iniciar a aplicação:
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. **Acessar a Aplicação**
+   Por padrão, a aplicação estará exposta no endereço abaixo. Abra seu navegador de preferência e acesse:
+   * **URL:** [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Explicação do Projeto
 
-## Deploy on Vercel
+O **Store-lab e-Commerce** é uma plataforma moderna e completa de comércio eletrônico, projetada para oferecer uma experiência de compra ágil, segura e fluida em quatro grandes departamentos: **Eletrônicos, Escritório, Moda Esportiva e Cuidados & Beleza**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O aplicativo apresenta uma interface elegante, com foco em usabilidade, animações fluidas e fluxos de compras integrados:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🛍️ Funcionalidades e Telas Principais
+
+1. **Vitrine Digital (`HomeView`)**:
+   * Ampla lista de produtos organizados com imagens de alta qualidade.
+   * Filtros inteligentes por Categorias (Eletrônicos, Escritório, Moda Esportiva e Cuidados & Beleza) e busca textual instantânea.
+   * Banner rotativo dinâmico destacando promoções e ofertas especiais.
+
+2. **Ficha de Detalhes do Produto (`ProductDetailView`)**:
+   * Detalhamento estruturado das características do produto, preços, avaliações e opiniões de clientes.
+   * Módulo interativo para cálculo estimativo de fretes e prazo de entrega.
+   * Galeria de fotos responsiva e seletor de quantidades.
+
+3. **Carrinho Híbrido (`CartView`)**:
+   * **Fluxo de Convidado:** Permite adicionar itens ao carrinho e simular a compra sem necessidade de cadastro imediato.
+   * **Sincronização Inteligente:** Consolida e vincula automaticamente os produtos do carrinho à conta do usuário no momento em que ele faz login ou cadastro.
+   * Persistência garantida localmente com `localStorage` para manter os itens salvos ao atualizar ou retornar ao site.
+
+4. **Autenticação Segura (`LoginView` & `RegisterView`)**:
+   * Telas de login e cadastro intuitivas, polidas e otimizadas para conversão.
+   * Formulários modernos com validação dinâmica de campos.
+
+5. **Portal do Cliente (`ProfileView`)**:
+   * Painel geral para atualizar dados cadastrais e de entrega.
+   * Histórico detalhado de pedidos anteriores com status dinâmico e acompanhamento logístico.
+
+### 🛠️ Decisões de Arquitetura e Engenharia
+
+* **Single-Page Application (SPA) em React**: Navegação instantânea e suave entre as visões com roteamento interno eficiente.
+* **Componentização Reutilizável**: UI organizada e modular (carrinho, cartões de produtos, rodapé e cabeçalho dinâmicos).
+* **Camada de Estado Centralizada (React Context)**: Sincronização em tempo real de produtos, carrinho, status de autenticação e fluxos de usuário.
+* **MUI (Material-UI)**: Design system robusto, garantindo consistência visual, total responsividade em smartphones, tablets e desktops, além de ótimos padrões de acessibilidade.
+* **Formik & Yup**: Gerenciamento de formulários e validações de dados limpos, declarativos e consistentes.
+
+---
+
+## 📸 Créditos das Imagens
+
+Para garantir uma interface visual de altíssimo nível, profissional e sem a necessidade de armazenar arquivos estáticos pesados dentro do repositório, o **Store-lab** utiliza imagens dinâmicas e de alta resolução obtidas de forma determinística diretamente do **[Unsplash](https://unsplash.com)**.
+
+Cada produto e categoria faz uso de fotografias profissionais licenciadas gratuitamente para uso comercial pela plataforma Unsplash:
+* **Eletrônicos**: Imagens de smartphones, fones de ouvido e smartwatches de alta tecnologia.
+* **Escritório**: Estações de trabalho minimalistas, cadeiras ergonômicas e luminárias elegantes.
+* **Moda Esportiva**: Roupas e calçados esportivos premium com alta definição de detalhes.
+* **Cuidados & Beleza**: Produtos estéticos, séruns faciais, velas perfumadas e kits de skincare refinados.
+
