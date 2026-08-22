@@ -1,196 +1,107 @@
-# 🧪 Store-lab
+# Store-lab e-Commerce
 
-### E-commerce Sandbox para estudos, experimentação e evolução contínua
-
-## 🌐 Aplicação
-
-Acesse a versão publicada do projeto:
-
-**Produção:** https://store-lab-six.vercel.app
+## 🌐 Link do Site
+Acesse a aplicação publicada em produção:
+* **Produção:** [https://seu-link-da-vercel.vercel.app](https://seu-link-da-vercel.vercel.app) *(substitua por seu link após realizar o deploy)*
 
 ---
 
-# 🧪 Sobre o Projeto
+## 🛠️ Como Rodar e Acessar o Projeto
 
-O **Store-lab** é um laboratório de desenvolvimento criado para simular um e-commerce moderno utilizando tecnologias do ecossistema React.
+Este projeto utiliza o ambiente moderno de desenvolvimento em React com TypeScript. Siga os passos abaixo para executá-lo em sua máquina local:
 
-O projeto foi concebido como um ambiente prático de aprendizado, experimentação e evolução contínua, onde novas funcionalidades, arquiteturas, integrações e boas práticas podem ser implementadas à medida que novos conhecimentos são adquiridos.
+### Pré-requisitos
+* **Node.js** (versão 18 ou superior recomendado)
+* **npm** (gerenciador de pacotes do Node)
 
-Diferentemente de uma loja virtual real, o foco principal do Store-lab é servir como um espaço seguro para validar ideias, testar abordagens técnicas e reproduzir desafios encontrados em aplicações de comércio eletrônico do mercado.
+### Passo a Passo para Inicialização
 
-Todas as funcionalidades presentes possuem caráter educacional e experimental, sendo utilizadas para prática, estudo e aprimoramento técnico.
+1. **Instalar Dependências**
+   Instale todas as dependências declaradas no projeto executando no seu terminal:
+   ```bash
+   npm install
+   ```
 
-## 🎯 Objetivos
+2. **Iniciar o Servidor de Desenvolvimento**
+   Execute o script de desenvolvimento para iniciar a aplicação:
+   ```bash
+   npm run dev
+   ```
 
-- Aplicar conhecimentos adquiridos em estudos e projetos pessoais.
-- Simular cenários reais encontrados em plataformas de e-commerce.
-- Evoluir continuamente a arquitetura da aplicação.
-- Experimentar bibliotecas, ferramentas e padrões de desenvolvimento.
-- Explorar boas práticas de Front-end moderno.
-- Construir um projeto de longo prazo para aprendizado contínuo.
-- Servir como portfólio técnico da evolução do desenvolvimento ao longo do tempo.
-
-## 🚀 Conceitos Explorados
-
-Ao longo da evolução do projeto, são explorados temas como:
-
-- Autenticação e autorização de usuários.
-- Gerenciamento de estado global.
-- Fluxos de carrinho e checkout.
-- Componentização e reutilização de código.
-- Arquitetura Front-end escalável.
-- Validação de formulários.
-- Responsividade e acessibilidade.
-- Integrações com APIs externas.
-- Qualidade de código e boas práticas.
-- Deploy e monitoramento de aplicações.
+3. **Acessar a Aplicação**
+   Por padrão, a aplicação estará exposta no endereço abaixo. Abra seu navegador de preferência e acesse:
+   * **URL:** [http://localhost:3000](http://localhost:3000)
 
 ---
 
-# Como Rodar o Projeto
+## 🧭 Governança Técnica e Padrões de Engenharia (AI-Ready)
 
-Este projeto utiliza React + TypeScript e pode ser executado localmente seguindo os passos abaixo.
+Este repositório adota padrões rigorosos de engenharia e contratos de desenvolvimento para garantir a integridade arquitetural do código, padronizando a atuação tanto de desenvolvedores quanto de **Agentes de IA**.
 
-## Pré-requisitos
+### 🤖 Instruções para Agentes de IA
+*   **[AGENTS.md](AGENTS.md)**: Fonte Única de Verdade com as diretrizes mandatórias de desenvolvimento. **O agente deve executar a consulta obrigatória à arquitetura no Passo 0** antes de qualquer modificação para assegurar conformidade e evitar regressões de código e estilo.
 
-- Node.js (versão 18 ou superior recomendada)
-- npm
+### 📚 Documentação Técnica (`/docs`)
+*   **[docs/arquitetura.md](docs/arquitetura.md)**: Especificação arquitetural do StoreLab V2, detalhando o fluxo de dados, desacoplamento de serviços e isolamento de estilos em arquivos colocalizados (`*.styles.ts`).
+*   **[docs/roadmap.md](docs/roadmap.md)**: Planejamento evolutivo do projeto, estruturando demandas técnicas de curto, médio e longo prazo (incluindo a transição para o back-end dedicado).
+*   **[docs/feature-logs/feature-change-01.md](docs/feature-logs/feature-change-01.md)**: Registro de evolução arquitetural V2 e changelog de refinamentos mais recentes (busca por sinônimos, higienização do rodapé e carrinho minimalista).
 
-## Instalação
+### 🧪 TestDrive (Estudo Futuro / Não Utilizado no Momento)
 
-Instale todas as dependências:
-
-```bash
-npm install
-```
-
-## Executando o Projeto
-
-Inicie o servidor de desenvolvimento:
-
-```bash
-npm run dev
-```
-
-## Acessando a Aplicação
-
-Após iniciar o projeto, acesse:
-
-http://localhost:3000
+*   **[testdrive/README.md](testdrive/README.md)**: Documentação de um estudo em andamento para avaliar a aplicação futura dos conceitos de **Spec vs. Loop**. Solicitou-se uma análise prévia do código à IA para entender como esses dois conceitos poderiam ser aplicados posteriormente. Este teste **não está em execução nem em uso no momento**.
 
 ---
 
-# 🛍️ Funcionalidades Implementadas
+## 🛍️ Explicação do Projeto
 
-## Home (`HomeView`)
+O **Store-lab e-Commerce** é uma plataforma moderna e completa de comércio eletrônico, projetada para oferecer uma experiência de compra ágil, segura e fluida em quatro grandes departamentos: **Eletrônicos, Escritório, Moda Esportiva e Cuidados & Beleza**.
 
-- Catálogo de produtos organizado por categorias.
-- Busca textual instantânea.
-- Filtros por departamento.
-- Banner promocional dinâmico.
-- Navegação rápida pelos produtos.
+O aplicativo apresenta uma interface elegante, com foco em usabilidade, animações fluidas e fluxos de compras integrados:
 
-## Detalhes do Produto (`ProductDetailView`)
+### Telas e Funcionalidades Principais
 
-- Informações detalhadas do produto.
-- Exibição de avaliações.
-- Galeria de imagens.
-- Controle de quantidade.
-- Adição ao carrinho.
+1. **Vitrine Digital (`HomeView`)**:
+   * Ampla lista de produtos organizados com imagens de alta qualidade.
+   * Filtros inteligentes por Categorias (Eletrônicos, Escritório, Moda Esportiva e Cuidados & Beleza) e busca textual por equivalência semântica e sinônimos (ex: buscas por *"escritório"* encontram todos os itens de *"Móveis / Office"*).
+   * Banner rotativo dinâmico destacando promoções e ofertas especiais.
 
-## Carrinho (`CartView`)
+2. **Ficha de Detalhes do Produto (`ProductDetailView`)**:
+   * Detalhamento estruturado das características do produto, preços, avaliações e opiniões de clientes.
+   * Módulo de avaliações formatado com visualização de barras de porcentagem por quantidade de estrelas.
+   * Galeria de fotos responsiva e seletor de quantidades para adicionar produtos livremente ao carrinho.
 
-### Fluxo para Visitantes
+3. **Carrinho Híbrido (`CartView`)**:
+   * **Visualização Minimalista Vazia:** Apresentação limpa focada em direcionar o cliente ao catálogo sem poluição visual.
+   * **Fluxo de Convidado:** Permite adicionar itens ao carrinho livremente sem necessidade de cadastro imediato.
+   * **Autenticação Obrigatória no Checkout:** Ao finalizar a compra no carrinho, caso o usuário não esteja autenticado, um diálogo amigável é exibido para solicitar o login ou cadastro de conta.
+   * **Sincronização Inteligente:** Consolida e vincula automaticamente os produtos do carrinho à conta do usuário no momento em que ele faz login ou cadastro.
+   * Persistência garantida localmente com `localStorage` para manter os itens salvos ao atualizar ou retornar ao site.
 
-- Adição de produtos sem necessidade de login.
-- Persistência local utilizando localStorage.
+4. **Autenticação Segura (`LoginView` & `RegisterView`)**:
+   * Telas de login e cadastro intuitivas, polidas e otimizadas para conversão.
+   * Formulários modernos com validação dinâmica de campos.
 
-### Fluxo de Checkout
+5. **Portal do Cliente (`ProfileView`)**:
+   * Painel geral para atualizar dados cadastrais e de entrega.
+   * Histórico detalhado de pedidos anteriores com status dinâmico e acompanhamento logístico.
 
-- Login obrigatório para finalizar a compra.
-- Solicitação automática de autenticação quando necessário.
-- Sincronização do carrinho após autenticação.
+### 📐 Decisões de Arquitetura e Engenharia
 
-## Autenticação (`LoginView` e `RegisterView`)
-
-- Cadastro de usuários.
-- Login de usuários.
-- Validação de formulários.
-- Feedback visual para erros e sucesso.
-
-## Perfil (`ProfileView`)
-
-- Gerenciamento de informações do usuário.
-- Atualização de dados cadastrais.
-- Área dedicada ao cliente autenticado.
+* **Single-Page Application (SPA) em React**: Navegação instantânea e suave entre as visões com roteamento interno eficiente.
+* **Componentização Reutilizável**: UI organizada e modular (carrinho, cartões de produtos, rodapé e cabeçalho dinâmicos).
+* **Identidade Visual Personalizada**: Uso consistente do logo com ícone de frasco de laboratório (`FlaskConical`) e paleta de cores moderna (azul e ardósia) configurada sob o Material-UI.
+* **Camada de Estado Centralizada (React Context)**: Sincronização em tempo real de produtos, carrinho, status de autenticação e fluxos de usuário.
+* **MUI (Material-UI)**: Design system robusto, garantindo consistência visual, total responsividade em smartphones, tablets e desktops, além de ótimos padrões de acessibilidade.
+* **Formik & Yup**: Gerenciamento de formulários e validações de dados limpos, declarativos e consistentes.
 
 ---
 
-# 🏗️ Arquitetura e Tecnologias
+## 📸 Créditos das Imagens
 
-## React + TypeScript
+Para garantir uma interface visual de altíssimo nível, profissional e sem a necessidade de armazenar arquivos estáticos pesados dentro do repositório, o **Store-lab** utiliza imagens dinâmicas e de alta resolução obtidas de forma determinística diretamente do **[Unsplash](https://unsplash.com)**.
 
-Aplicação construída como uma Single Page Application (SPA), proporcionando navegação rápida e experiência fluida.
-
-## React Context
-
-Centralização do gerenciamento de estado para:
-
-- Autenticação.
-- Carrinho.
-- Produtos.
-- Fluxos globais da aplicação.
-
-## Material UI (MUI)
-
-Design System utilizado para garantir:
-
-- Consistência visual.
-- Responsividade.
-- Acessibilidade.
-- Produtividade no desenvolvimento.
-
-## Formik + Yup
-
-Utilizados para:
-
-- Construção de formulários.
-- Validações declarativas.
-- Melhor experiência do usuário.
-
-## Componentização
-
-Estrutura modular com foco em:
-
-- Reutilização.
-- Manutenibilidade.
-- Escalabilidade.
-
-## Identidade Visual
-
-O projeto utiliza a simbologia de um laboratório através do ícone de frasco (`FlaskConical`), reforçando sua proposta de ambiente experimental para aprendizado e evolução contínua.
-
----
-
-# 📸 Créditos das Imagens
-
-Para manter o repositório leve e focado no desenvolvimento da aplicação, o Store-lab utiliza imagens obtidas dinamicamente através do Unsplash.
-
-As imagens são utilizadas apenas para compor a experiência visual e simular um catálogo de produtos semelhante ao encontrado em plataformas de e-commerce reais.
-
-Categorias atualmente representadas:
-
-- Eletrônicos
-- Escritório
-- Moda Esportiva
-- Cuidados & Beleza
-
-Todas as imagens seguem os termos de uso disponibilizados pela plataforma Unsplash.
-
----
-
-# 📌 Observação
-
-O Store-lab é um projeto em constante evolução.
-
-Novas funcionalidades, refatorações, melhorias arquiteturais e experimentos podem ser adicionados a qualquer momento, acompanhando a evolução dos estudos, experiências e objetivos de aprendizado.
+Cada produto e categoria faz uso de fotografias profissionais licenciadas gratuitamente para uso comercial pela plataforma Unsplash:
+* **Eletrônicos**: Imagens de smartphones, fones de ouvido e smartwatches de alta tecnologia.
+* **Escritório**: Estações de trabalho minimalistas, cadeiras ergonômicas e luminárias elegantes.
+* **Moda Esportiva**: Roupas e calçados esportivos premium com alta definição de detalhes.
+* **Cuidados & Beleza**: Produtos estéticos, séruns faciais, velas perfumadas e kits de skincare refinados.
