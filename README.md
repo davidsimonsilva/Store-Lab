@@ -1,196 +1,158 @@
-# 🧪 Store-lab
+# StoreLab
 
-### E-commerce Sandbox para estudos, experimentação e evolução contínua
+Aplicação de e-commerce desenvolvida com React, TypeScript e Material UI para demonstrar a construção de uma interface moderna, responsiva e organizada seguindo boas práticas de desenvolvimento Front-end.
 
-## 🌐 Aplicação
-
-Acesse a versão publicada do projeto:
-
-**Produção:** https://store-lab-six.vercel.app
+O projeto simula uma experiência completa de compra online, incluindo catálogo de produtos, busca, carrinho persistente, autenticação de usuários e área de perfil.
 
 ---
 
-# 🧪 Sobre o Projeto
+## Demo
 
-O **Store-lab** é um laboratório de desenvolvimento criado para simular um e-commerce moderno utilizando tecnologias do ecossistema React.
+**Aplicação em produção**
 
-O projeto foi concebido como um ambiente prático de aprendizado, experimentação e evolução contínua, onde novas funcionalidades, arquiteturas, integrações e boas práticas podem ser implementadas à medida que novos conhecimentos são adquiridos.
-
-Diferentemente de uma loja virtual real, o foco principal do Store-lab é servir como um espaço seguro para validar ideias, testar abordagens técnicas e reproduzir desafios encontrados em aplicações de comércio eletrônico do mercado.
-
-Todas as funcionalidades presentes possuem caráter educacional e experimental, sendo utilizadas para prática, estudo e aprimoramento técnico.
-
-## 🎯 Objetivos
-
-- Aplicar conhecimentos adquiridos em estudos e projetos pessoais.
-- Simular cenários reais encontrados em plataformas de e-commerce.
-- Evoluir continuamente a arquitetura da aplicação.
-- Experimentar bibliotecas, ferramentas e padrões de desenvolvimento.
-- Explorar boas práticas de Front-end moderno.
-- Construir um projeto de longo prazo para aprendizado contínuo.
-- Servir como portfólio técnico da evolução do desenvolvimento ao longo do tempo.
-
-## 🚀 Conceitos Explorados
-
-Ao longo da evolução do projeto, são explorados temas como:
-
-- Autenticação e autorização de usuários.
-- Gerenciamento de estado global.
-- Fluxos de carrinho e checkout.
-- Componentização e reutilização de código.
-- Arquitetura Front-end escalável.
-- Validação de formulários.
-- Responsividade e acessibilidade.
-- Integrações com APIs externas.
-- Qualidade de código e boas práticas.
-- Deploy e monitoramento de aplicações.
+StoreLab: https://store-lab-six.vercel.app/
 
 ---
 
-# Como Rodar o Projeto
+## Funcionalidades
 
-Este projeto utiliza React + TypeScript e pode ser executado localmente seguindo os passos abaixo.
+### Catálogo de Produtos
 
-## Pré-requisitos
+* Listagem de produtos por categorias
+* Busca textual de produtos
+* Banner promocional rotativo
+* Interface responsiva para desktop e dispositivos móveis
 
-- Node.js (versão 18 ou superior recomendada)
-- npm
+### Página de Produto
 
-## Instalação
+* Informações detalhadas
+* Galeria de imagens
+* Avaliações simuladas
+* Controle de quantidade para compra
 
-Instale todas as dependências:
+### Carrinho de Compras
+
+* Adição e remoção de produtos
+* Atualização de quantidades
+* Persistência de dados com localStorage
+* Resumo de valores do pedido
+
+### Autenticação
+
+* Cadastro de usuários
+* Login e logout
+* Proteção de rotas
+* Sincronização do carrinho após autenticação
+
+### Área do Cliente
+
+* Gerenciamento de perfil
+* Histórico de pedidos
+* Atualização de informações cadastrais
+
+---
+
+## Tecnologias Utilizadas
+
+### Front-end
+
+* React
+* TypeScript
+* Material UI (MUI)
+* React Router
+
+### Formulários e Validação
+
+* Formik
+* Yup
+
+### Gerenciamento de Estado
+
+* React Context API
+
+### Ferramentas
+
+* Vite
+* ESLint
+* Jest
+
+---
+
+## Estrutura e Arquitetura
+
+O projeto foi organizado com foco em:
+
+* Componentização reutilizável
+* Separação de responsabilidades
+* Organização modular de páginas e componentes
+* Centralização de estados globais através de Context API
+* Padronização visual utilizando Material UI
+
+Principais módulos da aplicação:
+
+* Autenticação
+* Carrinho
+* Checkout
+* Perfil de Usuário
+* Catálogo de Produtos
+* Componentes Compartilhados
+
+---
+
+## Executando Localmente
+
+### Pré-requisitos
+
+* Node.js 18 ou superior
+* npm
+
+### Instalação
 
 ```bash
 npm install
 ```
 
-## Executando o Projeto
-
-Inicie o servidor de desenvolvimento:
+### Ambiente de Desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-## Acessando a Aplicação
+Após iniciar o servidor, acesse:
 
-Após iniciar o projeto, acesse:
-
+```text
 http://localhost:3000
+```
 
 ---
 
-# 🛍️ Funcionalidades Implementadas
+## Documentação Técnica
 
-## Home (`HomeView`)
+A documentação complementar do projeto está disponível na pasta `/docs`.
 
-- Catálogo de produtos organizado por categorias.
-- Busca textual instantânea.
-- Filtros por departamento.
-- Banner promocional dinâmico.
-- Navegação rápida pelos produtos.
+Documentos principais:
 
-## Detalhes do Produto (`ProductDetailView`)
-
-- Informações detalhadas do produto.
-- Exibição de avaliações.
-- Galeria de imagens.
-- Controle de quantidade.
-- Adição ao carrinho.
-
-## Carrinho (`CartView`)
-
-### Fluxo para Visitantes
-
-- Adição de produtos sem necessidade de login.
-- Persistência local utilizando localStorage.
-
-### Fluxo de Checkout
-
-- Login obrigatório para finalizar a compra.
-- Solicitação automática de autenticação quando necessário.
-- Sincronização do carrinho após autenticação.
-
-## Autenticação (`LoginView` e `RegisterView`)
-
-- Cadastro de usuários.
-- Login de usuários.
-- Validação de formulários.
-- Feedback visual para erros e sucesso.
-
-## Perfil (`ProfileView`)
-
-- Gerenciamento de informações do usuário.
-- Atualização de dados cadastrais.
-- Área dedicada ao cliente autenticado.
+* `docs/arquitetura.md`
+* `docs/roadmap.md`
+* `docs/feature-logs/`
 
 ---
 
-# 🏗️ Arquitetura e Tecnologias
+## Objetivos do Projeto
 
-## React + TypeScript
+Este projeto foi desenvolvido para praticar e demonstrar conhecimentos em:
 
-Aplicação construída como uma Single Page Application (SPA), proporcionando navegação rápida e experiência fluida.
-
-## React Context
-
-Centralização do gerenciamento de estado para:
-
-- Autenticação.
-- Carrinho.
-- Produtos.
-- Fluxos globais da aplicação.
-
-## Material UI (MUI)
-
-Design System utilizado para garantir:
-
-- Consistência visual.
-- Responsividade.
-- Acessibilidade.
-- Produtividade no desenvolvimento.
-
-## Formik + Yup
-
-Utilizados para:
-
-- Construção de formulários.
-- Validações declarativas.
-- Melhor experiência do usuário.
-
-## Componentização
-
-Estrutura modular com foco em:
-
-- Reutilização.
-- Manutenibilidade.
-- Escalabilidade.
-
-## Identidade Visual
-
-O projeto utiliza a simbologia de um laboratório através do ícone de frasco (`FlaskConical`), reforçando sua proposta de ambiente experimental para aprendizado e evolução contínua.
+* React
+* TypeScript
+* Material UI
+* Arquitetura Front-end
+* Componentização
+* Gerenciamento de Estado
+* Desenvolvimento Responsivo
+* Boas Práticas de Engenharia de Software
 
 ---
 
-# 📸 Créditos das Imagens
+## Licença
 
-Para manter o repositório leve e focado no desenvolvimento da aplicação, o Store-lab utiliza imagens obtidas dinamicamente através do Unsplash.
-
-As imagens são utilizadas apenas para compor a experiência visual e simular um catálogo de produtos semelhante ao encontrado em plataformas de e-commerce reais.
-
-Categorias atualmente representadas:
-
-- Eletrônicos
-- Escritório
-- Moda Esportiva
-- Cuidados & Beleza
-
-Todas as imagens seguem os termos de uso disponibilizados pela plataforma Unsplash.
-
----
-
-# 📌 Observação
-
-O Store-lab é um projeto em constante evolução.
-
-Novas funcionalidades, refatorações, melhorias arquiteturais e experimentos podem ser adicionados a qualquer momento, acompanhando a evolução dos estudos, experiências e objetivos de aprendizado.
+Projeto desenvolvido para fins educacionais, estudo e demonstração técnica.

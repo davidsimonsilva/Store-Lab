@@ -1,6 +1,6 @@
 export interface Product {
-  id: string | number;
-  productID: string | number;
+  id: string;
+  productID: string;
   name: string;
   category: string;
   price: number;
@@ -8,6 +8,20 @@ export interface Product {
   image: string;
   rating?: number;
   featured?: boolean;
+}
+
+export interface Review {
+  id: string;
+  userName: string;
+  rating: number;
+  date: string;
+  comment: string;
+  verified?: boolean;
+}
+
+export interface TechnicalSpec {
+  label: string;
+  value: string;
 }
 
 export interface User {
@@ -19,6 +33,8 @@ export interface User {
   cep?: string;
   card?: string;
   pix?: string;
+  cardExpiry?: string;
+  cardCvv?: string;
 }
 
 export interface CartItem {
@@ -27,6 +43,13 @@ export interface CartItem {
   productId: string | number;
   product: Product;
   quantity: number;
+}
+
+export interface CheckoutPayload {
+  items: CartItem[];
+  totalPrice: number;
+  timestamp: string;
+  userId?: string;
 }
 
 export type ActiveView = 'home' | 'cart' | 'profile' | 'login' | 'register' | 'product-detail';

@@ -22,25 +22,23 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "strict": false,
+    "strict": true,
     "incremental": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "resolveJsonModule": true
   },
   "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
     "**/*.mts",
     "**/*.ts",
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "backup",
+    "docs_old",
+    "docs_plan",
+    "planejamentos",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
