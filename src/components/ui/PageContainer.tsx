@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Box, ContainerProps } from '@mui/material';
+import { pageContainerBoxStyle, pageContainerInnerStyle } from './PageContainer.styles';
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -8,11 +9,6 @@ interface PageContainerProps {
   bgcolor?: string;
 }
 
-/**
- * Componente de layout corporativo reutilizável que padroniza o tamanho,
- * espaçamento e cor de fundo do "body" de todas as páginas da plataforma.
- * Resolve o problema de rodapé desalinhado e inconsistências de altura.
- */
 export const PageContainer: React.FC<PageContainerProps> = ({
   children,
   maxWidth = 'lg',
@@ -20,24 +16,10 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   bgcolor = '#f8fafc',
 }) => {
   return (
-    <Box 
-      sx={{ 
-        flexGrow: 1, 
-        width: '100%',
-        bgcolor: bgcolor,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <Box sx={pageContainerBoxStyle(bgcolor)}>
       <Container 
         maxWidth={maxWidth} 
-        sx={{ 
-          py: py,
-          flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-        }}
+        sx={pageContainerInnerStyle(py)}
       >
         {children}
       </Container>

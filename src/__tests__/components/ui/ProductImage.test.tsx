@@ -13,9 +13,9 @@ describe('ProductImage component', () => {
   test('switches to fallback src on image load error', () => {
     render(<ProductImage src="https://example.com/broken.jpg" alt="Produto Quebrado" />);
     const img = screen.getByAltText('Produto Quebrado') as HTMLImageElement;
-    
+
     fireEvent.error(img);
-    
+
     expect(img.src).toContain('data:image/svg+xml');
   });
 });

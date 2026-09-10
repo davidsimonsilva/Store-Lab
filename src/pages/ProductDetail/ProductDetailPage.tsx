@@ -12,54 +12,65 @@ import {
   Link,
   Tooltip,
   Badge,
-  Card
+  Card,
+  TextField
 } from '@mui/material';
 import { 
-  Heart, 
   Share2, 
-  Search, 
   Minus, 
   Plus, 
   ArrowLeft, 
   Check, 
   ShoppingCart,
-  Truck
+  Info
 } from 'lucide-react';
-import { useAppState } from '../../context/AppStateContext';
+import { productQuantitySchema } from '../../schemas/commonSchemas';
+import { TOOLTIP_MAX_LIMIT_MESSAGE, MAX_PRODUCT_PURCHASE_LIMIT } from '../../services/productQuotaService';
+import { useUIState, formatUrlName } from '../../context/UIStateContext';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { MOCK_PRODUCTS, getProductFallbackImage } from '../../mocks/products';
-import { getBasicDescription, getTechnicalSpecifications } from '../../mocks/specsMock';
 import { ProductCard } from '../../components/ProductCard/ProductCard';
 import { Product } from '../../types';
-import { ProductReviews } from './ProductReviews';
+import { ProductReviews } from './Reviews/ProductReviews';
+import { ProductGallery } from './components/ProductGallery';
+import { ProductFreightCalculator } from './components/ProductFreightCalculator';
+import { ProductSpecsCards } from './components/ProductSpecsCards';
+import { NotFoundPage } from '../NotFound/NotFoundPage';
 import { formatCurrencyBRL } from '../../utils/formatters';
-import { ProductImage } from '../../components/ui/ProductImage';
+import { calculatePixPrice } from '../../utils/pricing';
+import { BUSINESS_CONSTANTS } from '../../constants';
 import { PageContainer } from '../../components/ui/PageContainer';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import {
   productDetailCardStyle,
-  mainImageWrapperStyle,
-  specCardStyle,
+  purchaseLimitBadgeStyle,
+  productActionButtonsContainerStyle,
+  productBuyButtonStyle,
+  productCartIconButtonStyle,
+  productCartBadgeStyle,
 } from './ProductDetail.styles';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  const { 
-    selectedProductId, 
-    setSelectedProductId,
-    addToCart,
-    cart,
-    user,
-    anonymousUserId
-  } = useAppState();
+  const { selectedProductId, setSelectedProductId } = useUIState();
+  const { addToCart, cartItems: cart } = useCart();
+  const { user, anonymousUserId } = useAuth();
 
   const productID = useMemo(() => {
     if (!slug) return undefined;
-    // Check direct ID match
+
+    const cleanMatch = MOCK_PRODUCTS.find(p => {
+      const formatted = formatUrlName(p.name);
+      return formatted === slug || formatted.replace(/-/g, '') === slug.replace(/-/g, '');
+    });
+    if (cleanMatch) return cleanMatch.productID || cleanMatch.id;
+
     const directMatch = MOCK_PRODUCTS.find(p => p.productID === slug || p.id === slug || String(p.id) === slug);
     if (directMatch) return directMatch.productID || directMatch.id;
 
-    // Check after last hyphen
     const lastHyphen = slug.lastIndexOf('-');
     if (lastHyphen !== -1) {
       const candidate = slug.substring(lastHyphen + 1);
@@ -67,22 +78,43 @@ export const ProductDetailPage: React.FC = () => {
       if (match) return match.productID || match.id;
     }
 
-    // Check if slug contains any product's ID
     const anyMatch = MOCK_PRODUCTS.find(p => slug.includes(p.productID) || slug.includes(p.id));
     return anyMatch ? (anyMatch.productID || anyMatch.id) : undefined;
   }, [slug]);
 
-  const resolvedProductId = productID || selectedProductId || MOCK_PRODUCTS[0].productID || MOCK_PRODUCTS[0].id;
+  const resolvedProductId = productID || (slug ? undefined : selectedProductId);
   const product = useMemo(() => {
-    return MOCK_PRODUCTS.find(p => p.productID === resolvedProductId || p.id === resolvedProductId || String(p.id) === String(resolvedProductId)) || MOCK_PRODUCTS[0];
+    if (!resolvedProductId) return null;
+    return (
+      MOCK_PRODUCTS.find(
+        p =>
+          p.productID === resolvedProductId ||
+          p.id === resolvedProductId ||
+          String(p.id) === String(resolvedProductId)
+      ) || null
+    );
   }, [resolvedProductId]);
 
-  useEffect(() => {
-    document.title = 'Store-lab';
-  }, []);
+  useDocumentTitle(
+    product
+      ? {
+          title: product.name,
+          description: `${product.name} na StoreLab. ${product.category ? `Categoria: ${product.category}. ` : ''}Por apenas ${formatCurrencyBRL(product.price)} com entrega rápida e garantia.`,
+          ogTitle: product.name,
+          ogDescription: `Compre ${product.name} por ${formatCurrencyBRL(product.price)} na StoreLab. Pagamento facilitado em até 10x e frete expresso.`,
+          ogImage: product.image || getProductFallbackImage(product.productID || product.id, product.category),
+          ogType: 'product',
+        }
+      : 'Produto não encontrado'
+  );
 
   const currentUserId = user?.isLoggedIn ? user.id : anonymousUserId;
-  const cartItem = cart?.find(item => (item.productId === product.productID || item.productId === product.id) && item.userId === currentUserId);
+  const cartItem = product
+    ? cart?.find(item => 
+        (item.productId === product.productID || item.productId === product.id || item.product?.id === product.id || item.product?.productID === product.productID) && 
+        (item.userId === currentUserId || !item.userId)
+      )
+    : undefined;
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   useEffect(() => {
@@ -93,15 +125,31 @@ export const ProductDetailPage: React.FC = () => {
     }
   }, [productID, selectedProductId, setSelectedProductId]);
 
-  const [activeImageIdx, setActiveImageIdx] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [quantity, setQuantity] = useState(1);
-  const [wishlist, setWishlist] = useState(false);
+  const [quantityError, setQuantityError] = useState<string | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
 
-  const [cep, setCep] = useState('');
-  const [cepCalculated, setCepCalculated] = useState(false);
+  const handleQuantityChange = (val: number | string) => {
+    const parsed = Number(val);
+    if (isNaN(parsed) || parsed < 1) {
+      setQuantity(1);
+      setQuantityError('Quantidade mínima é 1 unidade');
+      return;
+    }
+    if (parsed > MAX_PRODUCT_PURCHASE_LIMIT) {
+      setQuantity(MAX_PRODUCT_PURCHASE_LIMIT);
+      setQuantityError(`Quantidade máxima permitida é de ${MAX_PRODUCT_PURCHASE_LIMIT} unidades por produto`);
+      return;
+    }
+    try {
+      productQuantitySchema.validateSync(parsed);
+      setQuantity(parsed);
+      setQuantityError(null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Quantidade inválida';
+      setQuantityError(msg);
+    }
+  };
 
   const handleShareClick = () => {
     if (typeof window !== 'undefined') {
@@ -119,26 +167,26 @@ export const ProductDetailPage: React.FC = () => {
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setActiveImageIdx(0);
-    setIsZoomed(false);
-    setZoomPos({ x: 50, y: 50 });
-    setQuantity(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [product.id, product.productID, slug]);
-
-  useEffect(() => {
-    if (!isZoomed) {
-      setZoomPos({ x: 50, y: 50 });
+    if (product) {
+      setQuantity(1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [isZoomed]);
+  }, [product?.id, product?.productID, slug]);
 
   const handleBuy = () => {
-    addToCart(product.productID || product.id, quantity);
+    if (!product) return;
+    try {
+      productQuantitySchema.validateSync(quantity);
+      addToCart(product, quantity);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Quantidade inválida';
+      setQuantityError(msg);
+    }
   };
 
   const getSubImages = (prod: Product): string[] => {
     const mainImg = getProductFallbackImage(prod.id, prod.category);
-    
+
     const baseImages: Record<string, string[]> = {
       "Eletrônicos / Mobile": [
         "https://images.unsplash.com/photo-1546054454-aa26e2b734c7?q=80&w=600&auto=format&fit=crop",
@@ -166,7 +214,7 @@ export const ProductDetailPage: React.FC = () => {
     return [mainImg, ...pool];
   };
 
-  const imagesList = getSubImages(product);
+  const imagesList = product ? getSubImages(product) : [];
 
   const getBrand = (prod: Product): string => {
     if (prod.name.toLowerCase().includes('samsung')) return 'SAMSUNG VISION';
@@ -179,16 +227,13 @@ export const ProductDetailPage: React.FC = () => {
     return 'STORE-LAB';
   };
 
-  const brandName = getBrand(product);
+  const brandName = product ? getBrand(product) : '';
   const totalReviews = 12;
 
   const scrollReviews = () => {
     reviewsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  /**
-   * Helper para extrair tags normalizadas de categoria/subcategoria do produto
-   */
   const getProductTags = (p: Product): string[] => {
     return p.category
       .toLowerCase()
@@ -197,9 +242,6 @@ export const ProductDetailPage: React.FC = () => {
       .filter(Boolean);
   };
 
-  /**
-   * Algoritmo Fisher-Yates para embaralhamento e ordenação 100% aleatória
-   */
   const shuffleArray = <T,>(items: T[]): T[] => {
     const arr = [...items];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -209,16 +251,10 @@ export const ProductDetailPage: React.FC = () => {
     return arr;
   };
 
-  /**
-   * LÓGICA DE PRODUTOS RELACIONADOS POR TAG & ORDEM ALEATÓRIA:
-   * - Filtra apenas produtos que compartilham a mesma categoria ou tags com o produto atual.
-   * - Embaralha aleatoriamente todos os produtos encontrados para garantir variedade.
-   * - Retorna até 4 itens com seleção e ordem dinâmicas a cada visualização/navegação.
-   */
   const relatedList = useMemo(() => {
+    if (!product) return [];
     const currentTags = getProductTags(product);
 
-    // Filtra produtos candidatos por tag/categoria compartilhada, excluindo o produto em exibição
     const matchingByTag = MOCK_PRODUCTS.filter(p => {
       if (p.id === product.id || p.productID === product.productID) return false;
 
@@ -229,10 +265,8 @@ export const ProductDetailPage: React.FC = () => {
       return sharesCategory || sharesTag;
     });
 
-    // Embaralha aleatoriamente os produtos da mesma tag/categoria
     const shuffledMatches = shuffleArray(matchingByTag);
 
-    // Caso a tag possua menos que 4 produtos no total, complementa com outros produtos aleatórios
     if (shuffledMatches.length < 4) {
       const otherProducts = MOCK_PRODUCTS.filter(
         p => p.id !== product.id && p.productID !== product.productID && !shuffledMatches.some(m => m.id === p.id)
@@ -242,15 +276,24 @@ export const ProductDetailPage: React.FC = () => {
     }
 
     return shuffledMatches.slice(0, 4);
-  }, [product.id, product.category]);
-  const techSpecs = getTechnicalSpecifications(product);
+  }, [product?.id, product?.productID, product?.category]);
 
-  const originalPrice = product.price * 1.277;
-  const installmentValue = product.price / 10.8;
+  if (!product) {
+    return (
+      <NotFoundPage
+        title="Produto não encontrado"
+        message="O produto solicitado não foi encontrado em nosso catálogo ou foi descontinuado."
+      />
+    );
+  }
+
+  const basePrice = product.price;
+  const pixPrice = calculatePixPrice(basePrice);
+  const freeInstallmentValue = basePrice / BUSINESS_CONSTANTS.FREE_INSTALLMENT_LIMIT;
 
   return (
     <PageContainer maxWidth="lg" py={4}>
-      {/* Breadcrumbs */}
+
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
         <Link 
           underline="hover" 
@@ -270,111 +313,26 @@ export const ProductDetailPage: React.FC = () => {
         </Typography>
       </Breadcrumbs>
 
-      {/* Main Product Showcase */}
       <Grid container spacing={4} sx={{ mb: 6 }}>
-        {/* Left Column: Product Gallery */}
+
         <Grid size={{ xs: 12, md: 6 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Box 
-              sx={{
-                ...mainImageWrapperStyle,
-                cursor: isZoomed ? 'zoom-out' : 'zoom-in',
-              }}
-              onClick={() => setIsZoomed(!isZoomed)}
-              onMouseMove={(e) => {
-                if (!isZoomed) return;
-                const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-                const rawX = ((e.clientX - left) / width) * 100;
-                const rawY = ((e.clientY - top) / height) * 100;
-                setZoomPos({
-                  x: Math.max(0, Math.min(100, rawX)),
-                  y: Math.max(0, Math.min(100, rawY))
-                });
-              }}
-            >
-              <ProductImage 
-                src={imagesList[activeImageIdx]} 
-                alt={product.name} 
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  transform: isZoomed ? 'scale(2.5)' : 'scale(1)',
-                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-                  transition: isZoomed ? 'none' : 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform-origin 0.3s ease',
-                }}
-              />
-
-              <Box 
-                sx={{ 
-                  position: 'absolute', 
-                  top: 16, 
-                  right: 16, 
-                  bgcolor: 'rgba(255, 255, 255, 0.95)', 
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '20px',
-                  px: 1.8,
-                  py: 0.8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                  zIndex: 2,
-                  pointerEvents: 'none'
-                }}
-              >
-                <Search size={14} color="#334155" style={{ marginRight: '6px' }} />
-                <Typography variant="caption" sx={{ color: '#0f172a', fontWeight: 700, fontSize: '0.78rem' }}>
-                  {isZoomed ? 'Remover Zoom' : 'Zoom na Imagem'}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Thumbnails */}
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, width: '100%' }}>
-              {imagesList.map((img, idx) => (
-                <Box
-                  key={idx}
-                  onClick={() => setActiveImageIdx(idx)}
-                  sx={{
-                    width: '72px',
-                    height: '72px',
-                    borderRadius: '12px',
-                    border: activeImageIdx === idx ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    bgcolor: '#ffffff',
-                    transition: 'all 0.2s ease',
-                    '&:hover': { opacity: 0.85 }
-                  }}
-                >
-                  <ProductImage 
-                    src={img} 
-                    alt={`${product.name} miniatura ${idx + 1}`} 
-                    sx={{ width: '100%', height: '100%' }}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </Box>
+          <ProductGallery imagesList={imagesList} productName={product.name} />
         </Grid>
 
-        {/* Right Column: Main Product Details White Card */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Card 
             elevation={0}
             sx={productDetailCardStyle}
           >
-            {/* Brand tag */}
+
             <Typography variant="caption" sx={{ color: '#2563eb', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', mb: 0.5, fontSize: '0.75rem' }}>
               {brandName}
             </Typography>
 
-            {/* Product Title */}
             <Typography variant="h4" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', mb: 1.5, fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
               {product.name}
             </Typography>
 
-            {/* Rating and seller row */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
               <Rating value={4.9} precision={0.1} readOnly size="small" sx={{ color: '#f59e0b' }} />
               <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>
@@ -394,59 +352,88 @@ export const ProductDetailPage: React.FC = () => {
 
             <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
 
-            {/* Price section */}
             <Box sx={{ mb: 2 }}>
               <Typography variant="caption" sx={{ color: '#94a3b8', textDecoration: 'line-through', fontSize: '0.85rem', display: 'block', mb: 0.25 }}>
-                De {formatCurrencyBRL(originalPrice)}
+                De {formatCurrencyBRL(basePrice)}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
                 <Typography variant="h3" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.8rem', md: '2.2rem' } }}>
-                  {formatCurrencyBRL(product.price)}
+                  {formatCurrencyBRL(pixPrice)}
                 </Typography>
                 <Box sx={{ bgcolor: '#ecfdf5', color: '#059669', fontWeight: 700, fontSize: '0.75rem', px: 1.2, py: 0.5, borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-                  <strong>no PIX</strong> <span>10% de desconto</span>
+                  <strong>no PIX</strong> <span>{BUSINESS_CONSTANTS.PIX_DISCOUNT_PERCENTAGE}% de desconto</span>
                 </Box>
               </Box>
               <Typography variant="caption" sx={{ display: 'block', color: '#64748b', fontSize: '0.825rem', mt: 0.5 }}>
-                Ou em até 12x de <strong style={{ color: '#0f172a' }}>{formatCurrencyBRL(installmentValue)}</strong> sem juros no cartão de crédito.
+                Ou em até {BUSINESS_CONSTANTS.FREE_INSTALLMENT_LIMIT}x de <strong style={{ color: '#0f172a' }}>{formatCurrencyBRL(freeInstallmentValue)}</strong> sem juros no cartão de crédito.
               </Typography>
             </Box>
 
             <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
 
-            {/* Quantity label & Controls */}
             <Box sx={{ mb: 3 }}>
-              <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', mb: 1, display: 'block', fontSize: '0.7rem' }}>
-                QUANTIDADE
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem' }}>
+                  QUANTIDADE
+                </Typography>
+                <Box sx={purchaseLimitBadgeStyle}>
+                  <Info size={13} />
+                  <span>Limite de {MAX_PRODUCT_PURCHASE_LIMIT} un./pedido</span>
+                </Box>
+              </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '9999px', bgcolor: '#f8fafc', px: 0.5, py: 0.25 }}>
-                  <IconButton aria-label="Diminuir quantidade" onClick={() => setQuantity(Math.max(1, quantity - 1))} size="small" sx={{ color: '#475569' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '12px', bgcolor: '#f8fafc', px: 0.5, py: 0.25 }}>
+                  <IconButton aria-label="Diminuir quantidade" onClick={() => handleQuantityChange(quantity - 1)} disabled={quantity <= 1} size="small" sx={{ color: '#475569' }}>
                     <Minus size={14} />
                   </IconButton>
-                  <Typography sx={{ px: 1.5, fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>
-                    {quantity}
-                  </Typography>
-                  <IconButton aria-label="Aumentar quantidade" onClick={() => setQuantity(quantity + 1)} size="small" sx={{ color: '#475569' }}>
-                    <Plus size={14} />
-                  </IconButton>
-                </Box>
-
-                <Tooltip title={wishlist ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}>
-                  <IconButton
-                    aria-label={wishlist ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                    onClick={() => setWishlist(!wishlist)}
-                    sx={{
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      p: 1.2,
-                      color: wishlist ? '#ef4444' : '#64748b',
-                      '&:hover': { bgcolor: '#f8fafc' }
+                  <TextField
+                    size="small"
+                    variant="standard"
+                    value={quantity}
+                    onChange={(e) => handleQuantityChange(e.target.value)}
+                    slotProps={{
+                      input: {
+                        disableUnderline: true,
+                        sx: {
+                          width: '40px',
+                          '& input': {
+                            textAlign: 'center',
+                            fontWeight: 700,
+                            fontSize: '0.9rem',
+                            color: '#0f172a',
+                            p: 0.5,
+                          }
+                        }
+                      },
+                      htmlInput: {
+                        min: 1,
+                        max: MAX_PRODUCT_PURCHASE_LIMIT,
+                        'aria-label': 'Quantidade do produto'
+                      }
                     }}
-                  >
-                    <Heart size={18} fill={wishlist ? '#ef4444' : 'none'} />
-                  </IconButton>
-                </Tooltip>
+                  />
+                  <Tooltip title={quantity >= MAX_PRODUCT_PURCHASE_LIMIT ? TOOLTIP_MAX_LIMIT_MESSAGE : ''}>
+                    <span>
+                      <IconButton
+                        aria-label="Aumentar quantidade"
+                        onClick={() => handleQuantityChange(quantity + 1)}
+                        disabled={quantity >= MAX_PRODUCT_PURCHASE_LIMIT}
+                        size="small"
+                        sx={{
+                          color: '#475569',
+                          '&.Mui-disabled': { color: '#cbd5e1' },
+                        }}
+                      >
+                        <Plus size={14} />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </Box>
+                {quantityError && (
+                  <Typography variant="caption" sx={{ color: '#ef4444', width: '100%', mt: 0.5, display: 'block' }}>
+                    {quantityError}
+                  </Typography>
+                )}
 
                 <Tooltip title="Compartilhar Produto">
                   <IconButton
@@ -465,172 +452,50 @@ export const ProductDetailPage: React.FC = () => {
                 </Tooltip>
               </Box>
 
-              {/* Primary Action Buttons */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 2 }}>
+              <Box sx={productActionButtonsContainerStyle}>
                 <Button
                   variant="contained"
                   onClick={handleBuy}
-                  startIcon={<ShoppingCart size={18} />}
-                  sx={{
-                    flexGrow: 1,
-                    py: 1.3,
-                    px: 3.5,
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontFamily: '"Space Grotesk", sans-serif',
-                    bgcolor: '#2563eb',
-                    textTransform: 'none',
-                    fontSize: '0.95rem',
-                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
-                    '&:hover': { bgcolor: '#1d4ed8' }
-                  }}
+                  sx={productBuyButtonStyle}
                 >
                   Comprar
                 </Button>
 
-                <IconButton
-                  aria-label="Ir para o carrinho"
-                  onClick={() => navigate('/carrinho')}
-                  sx={{
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    p: 1.3,
-                    color: '#2563eb',
-                    bgcolor: '#ffffff',
-                    '&:hover': { bgcolor: '#f8fafc' }
-                  }}
-                >
-                  <Badge badgeContent={quantityInCart} color="primary">
-                    <ShoppingCart size={20} />
-                  </Badge>
-                </IconButton>
+                <Tooltip title="Ir para o carrinho">
+                  <IconButton
+                    aria-label="Ir para o carrinho"
+                    onClick={() => navigate('/carrinho')}
+                    sx={productCartIconButtonStyle}
+                  >
+                    <Badge badgeContent={quantityInCart} color="primary" sx={productCartBadgeStyle}>
+                      <ShoppingCart size={20} />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
               </Box>
             </Box>
 
             <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
 
-            {/* Freight / Zipcode Calculator */}
-            <Box sx={{ pt: 0.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                <Truck size={16} color="#2563eb" />
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.875rem' }}>
-                  Calcular frete e prazo de entrega
-                </Typography>
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <input 
-                  type="text" 
-                  value={cep}
-                  onChange={(e) => {
-                    const clean = e.target.value.replace(/\D/g, '').slice(0, 8);
-                    let formatted = clean;
-                    if (clean.length > 5) formatted = `${clean.slice(0, 5)}-${clean.slice(5)}`;
-                    setCep(formatted);
-                  }}
-                  placeholder="Ex: 01311-200"
-                  style={{
-                    flexGrow: 1,
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    backgroundColor: '#ffffff'
-                  }}
-                />
-                <Button
-                  onClick={() => setCepCalculated(true)}
-                  sx={{
-                    bgcolor: '#f1f5f9',
-                    color: '#475569',
-                    borderRadius: '10px',
-                    px: 2.5,
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    fontSize: '0.85rem',
-                    '&:hover': { bgcolor: '#e2e8f0' }
-                  }}
-                >
-                  Consultar
-                </Button>
-              </Box>
-
-              {cepCalculated && (
-                <Box sx={{ mt: 1.5, p: 1.5, bgcolor: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
-                  <Typography variant="caption" sx={{ display: 'block', color: '#16a34a', fontWeight: 700 }}>
-                    ✓ Entrega Padrão (PAC): Grátis (até 3 dias úteis)
-                  </Typography>
-                  <Typography variant="caption" sx={{ display: 'block', color: '#0f172a', fontWeight: 600, mt: 0.5 }}>
-                    • Entrega Expressa (SEDEX): R$ 9,90 (até 1 dia útil)
-                  </Typography>
-                </Box>
-              )}
-            </Box>
+            <ProductFreightCalculator />
           </Card>
         </Grid>
       </Grid>
 
-      {/* Side-by-side Cards for Descriptions */}
-      <Grid container spacing={3.5} sx={{ mb: 6 }}>
-        {/* Basic Description Card */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card 
-            elevation={0}
-            sx={specCardStyle}
-          >
-            <Typography variant="h5" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 800, color: '#0f172a', mb: 2, fontSize: '1.25rem' }}>
-              Descrição Básica do Produto
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#475569', lineHeight: 1.7, fontSize: '0.925rem' }}>
-              {getBasicDescription(product)}
-            </Typography>
-          </Card>
-        </Grid>
+      <ProductSpecsCards product={product} />
 
-        {/* Technical Specifications Card */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card 
-            elevation={0}
-            sx={specCardStyle}
-          >
-            <Typography variant="h5" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 800, color: '#0f172a', mb: 2, fontSize: '1.25rem' }}>
-              Descrição Técnica do Produto
-            </Typography>
-            
-            <Box sx={{ border: '1px solid #f1f5f9', borderRadius: '12px', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
-                <tbody>
-                  {techSpecs.map((spec, i) => (
-                    <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f8fafc' : '#ffffff', borderBottom: '1px solid #f1f5f9' }}>
-                      <th style={{ padding: '10px 14px', fontWeight: 600, color: '#64748b', width: '40%' }}>
-                        {spec.label}
-                      </th>
-                      <td style={{ padding: '10px 14px', fontWeight: 500, color: '#0f172a' }}>
-                        {spec.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Product Reviews */}
       <Box ref={reviewsRef} sx={{ mb: 6 }}>
         <ProductReviews 
           productId={product.id} 
+          productName={product.name}
           productCategory={product.category} 
           productRating={product.rating || 4.9} 
         />
       </Box>
 
-      {/* Related Products */}
       <Box>
         <Typography variant="h5" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 800, mb: 3, color: '#0f172a' }}>
-          Produtos Relacionados
+          Quem comprou este item também levou
         </Typography>
 
         <Grid container spacing={3}>

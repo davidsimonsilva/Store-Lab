@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   Container, 
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { BrandLogo } from '../components/BrandLogo/BrandLogo';
 import { useUIState } from '../context/UIStateContext';
+import { newsletterSchema } from '../schemas/commonSchemas';
 import {
   footerRootStyles,
   newsletterCardStyles,
@@ -33,9 +34,13 @@ import {
   newsletterTitleStyles,
   newsletterSubtitleStyles,
   newsletterFormStyles,
+  newsletterInputStyles,
+  newsletterButtonStyles,
   brandContainerStyles,
   logoRowStyles,
   logoTitleStyles,
+  logoHyphenStyles,
+  logoSuffixStyles,
   brandDescriptionStyles,
   socialGroupStyles,
   socialIconButtonStyles,
@@ -52,15 +57,30 @@ export const Footer: React.FC = () => {
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (newsletterStatus === 'success') {
+      const timer = setTimeout(() => {
+        setNewsletterStatus('idle');
+      }, 20000); 
+
+      return () => clearTimeout(timer);
+    }
+  }, [newsletterStatus]);
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+    try {
+      newsletterSchema.validateSync({ email: newsletterEmail });
+      setNewsletterError(null);
+      setNewsletterStatus('success');
+      setNewsletterEmail('');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Informe um e-mail válido';
+      setNewsletterError(msg);
       setNewsletterStatus('error');
-      return;
     }
-    setNewsletterStatus('success');
-    setNewsletterEmail('');
   };
 
   const handleNavClick = (path: string) => {
@@ -112,11 +132,19 @@ export const Footer: React.FC = () => {
                   value={newsletterEmail}
                   onChange={(e) => {
                     setNewsletterEmail(e.target.value);
-                    if (newsletterStatus === 'error') setNewsletterStatus('idle');
+                    if (newsletterStatus === 'error') {
+                      setNewsletterStatus('idle');
+                      setNewsletterError(null);
+                    }
                   }}
                   error={newsletterStatus === 'error'}
-                  helperText={newsletterStatus === 'error' ? 'Informe um e-mail válido' : undefined}
-                  sx={{ flexGrow: 1, bgcolor: 'background.paper', borderRadius: 2 }}
+                  helperText={newsletterStatus === 'error' ? (newsletterError || 'Informe um e-mail válido') : undefined}
+                  slotProps={{
+                    htmlInput: {
+                      maxLength: 120,
+                    },
+                  }}
+                  sx={newsletterInputStyles}
                 />
                 <Button 
                   id="newsletter-submit-btn"
@@ -124,6 +152,7 @@ export const Footer: React.FC = () => {
                   variant="contained" 
                   color="primary"
                   endIcon={<ArrowRight size={16} />}
+                  sx={newsletterButtonStyles}
                 >
                   Cadastrar
                 </Button>
@@ -135,10 +164,12 @@ export const Footer: React.FC = () => {
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={brandContainerStyles}>
-              <Box sx={logoRowStyles} onClick={() => handleNavClick('/')} style={{ cursor: 'pointer' }}>
+              <Box sx={logoRowStyles} onClick={() => handleNavClick('/')}>
                 <BrandLogo size="small" onClick={() => handleNavClick('/')} />
-                <Typography variant="h6" sx={logoTitleStyles}>
-                  Store-lab
+                <Typography variant="h5" sx={logoTitleStyles}>
+                  <span>Store</span>
+                  <Box component="span" sx={logoHyphenStyles}>-</Box>
+                  <Box component="span" sx={logoSuffixStyles}>lab</Box>
                 </Typography>
               </Box>
 
@@ -171,7 +202,7 @@ export const Footer: React.FC = () => {
             </Box>
           </Grid>
 
-          <Grid size={{ xs: 6, sm: 4, md: 2.5 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
             <Typography variant="subtitle2" sx={columnTitleStyles}>
               Categorias
             </Typography>
@@ -199,34 +230,34 @@ export const Footer: React.FC = () => {
             </Box>
           </Grid>
 
-          <Grid size={{ xs: 6, sm: 4, md: 2.5 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
             <Typography variant="subtitle2" sx={columnTitleStyles}>
               Institucional & Ajuda
             </Typography>
             <Box component="ul" sx={linkListStyles}>
               <li>
-                <Box sx={linkItemStyles}>
+                <Link component="button" onClick={() => handleNavClick('/faq')} sx={linkItemStyles}>
                   <HelpCircle size={15} />
                   <span>Dúvidas Frequentes (FAQ)</span>
-                </Box>
+                </Link>
               </li>
               <li>
-                <Box sx={linkItemStyles}>
+                <Link component="button" onClick={() => handleNavClick('/rastreio')} sx={linkItemStyles}>
                   <Truck size={15} />
                   <span>Rastreio de Pedidos</span>
-                </Box>
+                </Link>
               </li>
               <li>
-                <Box sx={linkItemStyles}>
+                <Link component="button" onClick={() => handleNavClick('/privacidade')} sx={linkItemStyles}>
                   <FileText size={15} />
                   <span>Política de Privacidade</span>
-                </Box>
+                </Link>
               </li>
               <li>
-                <Box sx={linkItemStyles}>
+                <Link component="button" onClick={() => handleNavClick('/termos')} sx={linkItemStyles}>
                   <FileText size={15} />
                   <span>Termos & Condições de Uso</span>
-                </Box>
+                </Link>
               </li>
             </Box>
           </Grid>

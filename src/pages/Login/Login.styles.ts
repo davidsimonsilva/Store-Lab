@@ -49,6 +49,17 @@ export const loginAnonAlertStyle: SxProps<Theme> = {
   bgcolor: '#eff6ff',
   color: '#1e40af',
   fontSize: '0.85rem',
+  alignItems: 'center',
+  '& .MuiAlert-icon': {
+    alignSelf: 'center',
+    py: 0,
+    my: 'auto',
+    color: '#2563eb',
+  },
+  '& .MuiAlert-message': {
+    alignSelf: 'center',
+    py: 0.5,
+  },
 };
 
 export const loginFormStyle: SxProps<Theme> = {

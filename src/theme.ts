@@ -4,19 +4,19 @@ export const LAB_THEME = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2563eb', // Blue-600
-      light: '#60a5fa', // Blue-400
-      dark: '#1d4ed8', // Blue-700
+      main: '#2563eb', 
+      light: '#60a5fa', 
+      dark: '#1d4ed8', 
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#0f172a', // Slate-900
+      main: '#0f172a', 
       light: '#334155', 
       dark: '#020617',
       contrastText: '#ffffff',
     },
     background: {
-      default: '#f8fafc', // Light Slate
+      default: '#f8fafc', 
       paper: '#ffffff',
     },
     text: {
@@ -66,11 +66,42 @@ export const LAB_THEME = createTheme({
     borderRadius: 12,
   },
   components: {
+    MuiModal: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiDrawer: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiPopover: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiMenu: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: '12px',
-          padding: '10px 22px',
+          height: '44px',
+          minHeight: '44px',
+          boxSizing: 'border-box',
+          padding: '0 20px',
+          fontFamily: '"Space Grotesk", sans-serif',
+          fontWeight: 700,
+          textTransform: 'none',
           boxShadow: 'none',
           '&:hover': {
             boxShadow: 'none',
@@ -91,6 +122,30 @@ export const LAB_THEME = createTheme({
             borderWidth: '1.5px',
             borderColor: '#cbd5e1',
             backgroundColor: '#f8fafc',
+          },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: '12px',
+          height: '44px',
+          minHeight: '44px',
+          boxSizing: 'border-box',
+          fontSize: '0.875rem',
+          '& .MuiOutlinedInput-input': {
+            height: '44px',
+            boxSizing: 'border-box',
+            py: 0,
+          },
+          '&.MuiInputBase-multiline': {
+            height: 'auto',
+            minHeight: '44px',
+            '& .MuiOutlinedInput-input': {
+              height: 'auto',
+              py: '10px',
+            },
           },
         },
       },

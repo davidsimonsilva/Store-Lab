@@ -1,19 +1,11 @@
 import React from 'react';
 import { Box, CircularProgress } from '@mui/material';
+import { pageLoaderBoxStyle, pageLoaderSpinnerStyle } from './PageLoader.styles';
 
 export const PageLoader: React.FC = () => {
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '60vh',
-        width: '100%',
-        bgcolor: 'background.default'
-      }}
-    >
-      <CircularProgress size={40} thickness={4} sx={{ color: 'primary.main' }} />
+    <Box sx={pageLoaderBoxStyle}>
+      <CircularProgress size={40} thickness={4} sx={pageLoaderSpinnerStyle} />
     </Box>
   );
 };

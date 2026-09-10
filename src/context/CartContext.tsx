@@ -1,8 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '../types';
 import { MOCK_PRODUCTS } from '../mocks/products';
-import { loadCartFromStorage, saveCartToStorage, mergeGuestCartToUser } from '../services/cartService';
+import { loadCartFromStorage, saveCartToStorage, mergeGuestCartToUser, clearCartStorage } from '../services/cartService';
+import {
+  checkProductQuota,
+  sanitizeCartItemsWithQuota,
+  MAX_PRODUCT_PURCHASE_LIMIT,
+} from '../services/productQuotaService';
+import { BUSINESS_CONSTANTS, STORAGE_KEYS } from '../constants';
+import { couponService } from '../services/couponService';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
+
+export interface CartShippingOption {
+  id: string;
+  name: string;
+  price: number;
+  days: number;
+  cep: string;
+}
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -11,6 +27,7 @@ interface CartContextType {
   couponError: string | null;
   subtotal: number;
   shipping: number;
+  shippingOption: CartShippingOption | null;
   discount: number;
   total: number;
   addToCart: (productOrId: Product | string | number, quantity?: number) => void;
@@ -22,31 +39,43 @@ interface CartContextType {
   removeCoupon: () => void;
   clearCouponError: () => void;
   setCouponCode: (code: string) => void;
+  setShippingOption: (option: CartShippingOption | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, anonymousUserId } = useAuth();
+  const { showToast } = useToast();
   const currentUserId = user?.isLoggedIn ? user.id : anonymousUserId;
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    return loadCartFromStorage('lab_cart');
+    return loadCartFromStorage(STORAGE_KEYS.CART);
   });
 
   const [couponCode, setCouponCode] = useState<string>('');
   const [discountApplied, setDiscountApplied] = useState<boolean>(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [shippingOption, setShippingOption] = useState<CartShippingOption | null>(null);
 
   useEffect(() => {
-    saveCartToStorage(cartItems, 'lab_cart');
+    saveCartToStorage(cartItems, STORAGE_KEYS.CART);
   }, [cartItems]);
 
   const activeCartItems = cartItems.filter(item => item.userId === currentUserId || !item.userId);
 
+  useEffect(() => {
+    if (activeCartItems.length === 0 && shippingOption !== null) {
+      setShippingOption(null);
+    }
+  }, [activeCartItems.length, shippingOption]);
+
   const subtotal = activeCartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const shipping = subtotal > 1500 ? 0 : (activeCartItems.length > 0 ? 39.90 : 0);
-  const discount = discountApplied ? subtotal * 0.10 : 0;
+  const shipping =
+    activeCartItems.length === 0 || !shippingOption
+      ? 0
+      : shippingOption.price;
+  const discount = discountApplied ? subtotal * 0.1 : 0;
   const total = subtotal + shipping - discount;
 
   const addToCart = (productOrId: Product | string | number, quantity: number = 1) => {
@@ -60,10 +89,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!targetProduct) return;
 
     const targetId = targetProduct.productID || targetProduct.id;
+    const existingItem = cartItems.find(
+      item => (item.productId === targetId || item.product?.id === targetId || item.product?.productID === targetId || String(item.productId) === String(targetId)) && 
+              (item.userId === currentUserId || !item.userId)
+    );
+    const currentInCart = existingItem ? existingItem.quantity : 0;
+
+    const quota = checkProductQuota(user?.isLoggedIn ? user.id : undefined, targetId, currentInCart);
+
+    if (quantity > quota.remainingAllowance) {
+      return;
+    }
 
     setCartItems((prev) => {
       const existingIndex = prev.findIndex(
-        item => (item.productId === targetId || item.product.id === targetId) && item.userId === currentUserId
+        item => (item.productId === targetId || item.product?.id === targetId || item.product?.productID === targetId || String(item.productId) === String(targetId)) && 
+                (item.userId === currentUserId || !item.userId)
       );
 
       if (existingIndex > -1) {
@@ -89,6 +130,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateCartQuantity = (productId: string | number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
+      return;
+    }
+
+    const quota = checkProductQuota(user?.isLoggedIn ? user.id : undefined, productId, 0);
+    if (quantity > quota.remainingAllowance) {
       return;
     }
 
@@ -118,36 +164,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearCart = () => {
-    // Clear items belonging to the current user OR items without a userId (guest/legacy cached items)
     setCartItems((prev) =>
       prev.filter((item) => item.userId !== currentUserId && !!item.userId)
     );
     setDiscountApplied(false);
     setCouponCode('');
     setCouponError(null);
+    setShippingOption(null);
+    clearCartStorage(STORAGE_KEYS.CART);
   };
 
   const clearAllCart = () => {
-    // Force reset the entire state to empty
     setCartItems([]);
     setDiscountApplied(false);
     setCouponCode('');
     setCouponError(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('lab_cart');
-      localStorage.removeItem('store_lab_cart');
-    }
+    setShippingOption(null);
+    clearCartStorage(STORAGE_KEYS.CART);
   };
 
   const applyCoupon = (code: string): boolean => {
     setCouponError(null);
-    const cleaned = code.trim().toUpperCase();
-    if (cleaned === 'LAB10' || cleaned === 'STORELAB10') {
-      setCouponCode(cleaned);
+    const result = couponService.validateCouponSync(code, subtotal);
+    if (result.isValid) {
+      setCouponCode(result.code);
       setDiscountApplied(true);
       return true;
     } else {
-      setCouponError('Cupom inválido. Tente usar o código LAB10.');
+      setCouponError(result.error || 'Cupom inválido');
       return false;
     }
   };
@@ -163,19 +207,47 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    if (user?.isLoggedIn && anonymousUserId) {
-      const guestItems = cartItems.filter(item => item.userId === anonymousUserId);
-      if (guestItems.length > 0) {
-        const userItems = cartItems.filter(item => item.userId === user.id);
-        const merged = mergeGuestCartToUser(guestItems, userItems).map(item => ({
-          ...item,
-          userId: user.id
-        }));
-        const otherItems = cartItems.filter(item => item.userId !== anonymousUserId && item.userId !== user.id);
-        setCartItems([...otherItems, ...merged]);
-      }
+    if (user?.isLoggedIn && user?.id) {
+      const targetUserId = user.id;
+
+      setCartItems((prevItems) => {
+        const needsMigration = prevItems.some((item) => item.userId !== targetUserId);
+        if (!needsMigration) return prevItems;
+
+        const mergedMap = new Map<string, CartItem>();
+        prevItems.forEach((item) => {
+          const key = String(item.productId || item.product?.id || item.product?.productID || item.id);
+          if (mergedMap.has(key)) {
+            const existing = mergedMap.get(key)!;
+            mergedMap.set(key, {
+              ...existing,
+              userId: targetUserId,
+              quantity: existing.quantity + item.quantity,
+            });
+          } else {
+            mergedMap.set(key, {
+              ...item,
+              userId: targetUserId,
+            });
+          }
+        });
+
+        const mergedItems = Array.from(mergedMap.values());
+        const { sanitizedItems, hadAdjustments, adjustedDetails } = sanitizeCartItemsWithQuota(targetUserId, mergedItems);
+
+        if (hadAdjustments && adjustedDetails.length > 0) {
+          const itemsList = adjustedDetails.map((d) => `"${d.productName}"`).join(', ');
+          showToast(
+            `Ajustamos a quantidade de ${itemsList} na sua sacola para respeitar o limite máximo de ${MAX_PRODUCT_PURCHASE_LIMIT} unidades por cliente com entregas em andamento.`,
+            'warning',
+            6000
+          );
+        }
+
+        return sanitizedItems;
+      });
     }
-  }, [user, anonymousUserId]);
+  }, [user?.id, user?.isLoggedIn, showToast]);
 
   return (
     <CartContext.Provider
@@ -186,6 +258,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         couponError,
         subtotal,
         shipping,
+        shippingOption,
         discount,
         total,
         addToCart,
@@ -196,7 +269,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         applyCoupon,
         removeCoupon,
         clearCouponError,
-        setCouponCode
+        setCouponCode,
+        setShippingOption,
       }}
     >
       {children}
@@ -204,10 +278,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+const defaultCartContext: CartContextType = {
+  cartItems: [],
+  couponCode: '',
+  discountApplied: false,
+  couponError: null,
+  subtotal: 0,
+  shipping: 0,
+  shippingOption: null,
+  discount: 0,
+  total: 0,
+  addToCart: () => {},
+  updateCartQuantity: () => {},
+  removeFromCart: () => {},
+  clearCart: () => {},
+  clearAllCart: () => {},
+  applyCoupon: () => false,
+  removeCoupon: () => {},
+  clearCouponError: () => {},
+  setCouponCode: () => {},
+  setShippingOption: () => {},
+};
+
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    console.warn('useCart was called outside of a CartProvider. Returning default fallback context.');
+    return defaultCartContext;
   }
   return context;
 };

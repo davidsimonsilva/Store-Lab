@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { BrowserRouter } from 'react-router';
-import { AppStateProvider } from './context/AppStateContext';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import { UIStateProvider } from './context/UIStateContext';
+import { ToastProvider } from './context/ToastContext';
 import { LAB_THEME } from './theme';
 import { AppRouter } from './router/AppRouter';
 
@@ -21,12 +24,18 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <AppStateProvider>
-        <ThemeProvider theme={LAB_THEME}>
-          <CssBaseline />
-          <AppRouter />
-        </ThemeProvider>
-      </AppStateProvider>
+      <ThemeProvider theme={LAB_THEME}>
+        <CssBaseline />
+        <AuthProvider>
+          <ToastProvider>
+            <CartProvider>
+              <UIStateProvider>
+                <AppRouter />
+              </UIStateProvider>
+            </CartProvider>
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

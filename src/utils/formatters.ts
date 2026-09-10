@@ -1,10 +1,5 @@
-/**
- * Utilitários de Formatação Centralizada para o Store-lab
- */
 
-/**
- * Formata um valor numérico para a moeda Real Brasileiro (R$).
- */
+
 export const formatCurrencyBRL = (value: number): string => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -12,9 +7,6 @@ export const formatCurrencyBRL = (value: number): string => {
   }).format(value);
 };
 
-/**
- * Aplica a máscara no formato CPF (000.000.000-00) progressivamente.
- */
 export const formatCPF = (cpf: string): string => {
   if (!cpf) return '';
   const clean = cpf.replace(/\D/g, '').slice(0, 11);
@@ -30,9 +22,6 @@ export const formatCPF = (cpf: string): string => {
   return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9)}`;
 };
 
-/**
- * Aplica a máscara no formato CEP (00000-000) progressivamente.
- */
 export const formatCEP = (cep: string): string => {
   if (!cep) return '';
   const clean = cep.replace(/\D/g, '').slice(0, 8);
@@ -42,9 +31,6 @@ export const formatCEP = (cep: string): string => {
   return `${clean.slice(0, 5)}-${clean.slice(5)}`;
 };
 
-/**
- * Valida a integridade matemática de um CPF.
- */
 export function validateCPF(cpf: string): boolean {
   if (!cpf) return false;
   const clean = cpf.replace(/[^\d]/g, '');
@@ -52,30 +38,51 @@ export function validateCPF(cpf: string): boolean {
   if (/^(\d)\1{10}$/.test(clean)) return false;
 
   let sum = 0;
-  for (let i = 0; i < 9; i++) {
-    sum += parseInt(clean.charAt(i)) * (10 - i);
+  for (let i = 1; i <= 9; i++) {
+    sum += parseInt(clean.substring(i - 1, i)) * (11 - i);
   }
-  let rev = 11 - (sum % 11);
-  if (rev === 10 || rev === 11) rev = 0;
-  if (rev !== parseInt(clean.charAt(9))) return false;
+  let remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(clean.substring(9, 10))) return false;
 
   sum = 0;
-  for (let i = 0; i < 10; i++) {
-    sum += parseInt(clean.charAt(i)) * (11 - i);
+  for (let i = 1; i <= 10; i++) {
+    sum += parseInt(clean.substring(i - 1, i)) * (12 - i);
   }
-  rev = 11 - (sum % 11);
-  if (rev === 10 || rev === 11) rev = 0;
-  if (rev !== parseInt(clean.charAt(10))) return false;
+  remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(clean.substring(10, 11))) return false;
 
   return true;
 }
 
-/**
- * Formata datas no padrão brasileiro (DD/MM/AAAA).
- */
+export const formatPhone = (phone: string): string => {
+  if (!phone) return '';
+  const clean = phone.replace(/\D/g, '').slice(0, 11);
+  if (clean.length <= 2) {
+    return clean.length ? `(${clean}` : '';
+  }
+  if (clean.length <= 6) {
+    return `(${clean.slice(0, 2)}) ${clean.slice(2)}`;
+  }
+  if (clean.length <= 10) {
+    return `(${clean.slice(0, 2)}) ${clean.slice(2, 6)}-${clean.slice(6)}`;
+  }
+  return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`;
+};
+
 export const formatDateBR = (date: string | Date): string => {
   if (!date) return '';
   const parsedDate = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(parsedDate.getTime())) return '';
   return parsedDate.toLocaleDateString('pt-BR');
+};
+
+export const formatUrlName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 };

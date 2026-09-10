@@ -48,6 +48,40 @@ export const newsletterFormStyles: SxProps<Theme> = {
   gap: 1.5,
   width: { xs: '100%', md: 'auto' },
   minWidth: { sm: 380 },
+  alignItems: { xs: 'stretch', sm: 'flex-start' },
+};
+
+export const newsletterInputStyles: SxProps<Theme> = {
+  flexGrow: 1,
+  '& .MuiOutlinedInput-root': {
+    height: '44px',
+    borderRadius: '12px',
+    bgcolor: 'background.paper',
+    '& input': {
+      py: 0,
+      height: '44px',
+      boxSizing: 'border-box',
+      fontSize: '0.875rem',
+    },
+  },
+};
+
+export const newsletterButtonStyles: SxProps<Theme> = {
+  height: '44px',
+  minHeight: '44px',
+  boxSizing: 'border-box',
+  borderRadius: '12px',
+  px: 3,
+  py: 0,
+  fontSize: '0.875rem',
+  fontWeight: 700,
+  textTransform: 'none',
+  boxShadow: 'none',
+  whiteSpace: 'nowrap',
+  width: { xs: '100%', sm: 'auto' },
+  '&:hover': {
+    boxShadow: 'none',
+  },
 };
 
 export const brandContainerStyles: SxProps<Theme> = {
@@ -60,24 +94,31 @@ export const logoRowStyles: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   gap: 1.5,
-};
-
-export const logoIconBoxStyles: SxProps<Theme> = {
-  bgcolor: 'primary.main',
-  color: 'primary.contrastText',
-  p: 1,
-  borderRadius: 2,
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  cursor: 'pointer',
+  userSelect: 'none',
+  width: 'fit-content',
 };
 
 export const logoTitleStyles: SxProps<Theme> = {
   fontFamily: '"Space Grotesk", sans-serif',
   fontWeight: 800,
   fontSize: '1.35rem',
-  letterSpacing: '-0.02em',
+  letterSpacing: '-0.04em',
   color: 'text.primary',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '1px',
+};
+
+export const logoHyphenStyles: SxProps<Theme> = {
+  color: '#2563eb',
+  fontWeight: 900,
+};
+
+export const logoSuffixStyles: SxProps<Theme> = {
+  color: '#2563eb',
+  fontWeight: 300,
+  fontSize: '0.95em',
 };
 
 export const brandDescriptionStyles: SxProps<Theme> = {

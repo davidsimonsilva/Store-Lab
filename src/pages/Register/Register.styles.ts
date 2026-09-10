@@ -51,15 +51,6 @@ export const registerAnonAlertStyle: SxProps<Theme> = {
   fontSize: '0.85rem',
 };
 
-export const registerPrivacyAlertStyle: SxProps<Theme> = {
-  mb: 2.5,
-  borderRadius: '12px',
-  border: '1px solid #fef08a',
-  bgcolor: '#fefce8',
-  color: '#854d0e',
-  fontSize: '0.8rem',
-};
-
 export const registerFormStyle: SxProps<Theme> = {
   display: 'flex',
   flexDirection: 'column',

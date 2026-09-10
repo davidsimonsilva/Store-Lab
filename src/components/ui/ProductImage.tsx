@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, BoxProps, Skeleton } from '@mui/material';
+import {
+  productImageWrapperStyle,
+  productImageSkeletonStyle,
+  productImageStyle,
+} from './ProductImage.styles';
 
 export interface ProductImageProps extends Omit<BoxProps<'img'>, 'src'> {
   src?: string;
@@ -28,14 +33,12 @@ export const ProductImage: React.FC<ProductImageProps> = ({
     setImgSrc(targetSrc);
     setHasError(false);
 
-    // Se a imagem já estiver em cache pelo navegador, desativa o loading imediatamente
     if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setIsLoading(false);
     } else {
       setIsLoading(true);
     }
 
-    // Trava de segurança: garante que o esqueleto de carregamento nunca fique travado na tela
     const safetyTimer = setTimeout(() => {
       setIsLoading(false);
     }, 600);
@@ -62,14 +65,14 @@ export const ProductImage: React.FC<ProductImageProps> = ({
   };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+    <Box sx={productImageWrapperStyle}>
       {isLoading && (
         <Skeleton
           variant="rectangular"
           width="100%"
           height="100%"
           animation="wave"
-          sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1, borderRadius: 'inherit' }}
+          sx={productImageSkeletonStyle}
         />
       )}
       <Box
@@ -80,14 +83,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
         onError={handleError}
         onLoad={handleLoad}
         decoding="async"
-        sx={{
-          objectFit: 'cover',
-          width: '100%',
-          height: '100%',
-          opacity: isLoading ? 0 : 1,
-          transition: 'opacity 0.2s ease-in-out',
-          ...sx,
-        }}
+        sx={productImageStyle(isLoading, sx)}
         {...rest}
       />
     </Box>
