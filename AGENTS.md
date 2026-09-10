@@ -1,44 +1,43 @@
-# StoreLab V2 - Diretrizes para Agentes de IA (AGENTS)
+# StoreLab - Diretrizes de Desenvolvimento (AGENTS.md)
 
-Este arquivo define as instruções mandatórias para qualquer agente de IA que atue neste repositório. Ele age como a Fonte Única de Verdade de Instruções e Práticas para garantir integridade arquitetural e evitar regressões.
-
----
-
-## Diretriz Crítica: Consulta Obrigatória à Arquitetura (Passo 0)
-Antes de realizar qualquer alteração de código (seja correção, refatoração ou nova funcionalidade), você DEVE obrigatoriamente ler e analisar os arquivos de documentação para guiar a implementação:
-*   `/docs/arquitetura.md`
-*   `/docs/roadmap.md`
-
-Esta consulta é um pré-requisito indispensável. Se a tarefa envolver criação ou modificação de componentes, contextos de estado, serviços de dados ou persistência, siga rigorosamente as diretrizes de baixo acoplamento, componentização e a divisão de responsabilidades descritas em `/docs/arquitetura.md`. Não pule esta etapa em nenhuma circunstância.
+Instruções mandatórias de arquitetura, padrões de engenharia e fluxo de execução aplicáveis a qualquer modelo ou ferramenta de automação que opere neste repositório.
 
 ---
 
-## Stack Tecnológica Consolidada
-O projeto utiliza exclusivamente as seguintes ferramentas:
-*   Core: React 19 + TypeScript 5
-*   Roteamento: React Router (BrowserRouter)
-*   Interface: Material UI (MUI) v7
-*   Formulários: Formik + Yup
-*   Testes: Jest + React Testing Library (RTL)
-*   Persistência: LocalStorage (Via serviços desacoplados em /src/services/)
+## 1. Verificação Prévia de Arquitetura (Passo 0)
+
+Antes de planejar ou alterar qualquer código em `/src/`, é obrigatório consultar e respeitar os módulos em `.agent/` e `.spec/`:
+
+1. **Regras de Arquitetura**: Consulte `/.agent/rules/regras-arquitetura.md`.
+2. **Método de Execução**: Siga o fluxo em `/.agent/skills/spec-driven/SKILL.md`.
+3. **Especificações de Funcionalidades**: Consulte ou defina a spec em `/.spec/features/<feature>/spec.md`.
+4. **Auditoria e Validação**: Observe os critérios em `/.agent/agents/revisor-arquitetura.md` e os requisitos do gate em `/.agent/verify/checklist-gate.md`.
+5. **Documentação de Referência**: Consulte `/docs/arquitetura.md` e `/docs/feature-logs/feature-change-02.md`.
 
 ---
 
-## Diretrizes de Organização de Código
+## 2. Stack Tecnológica
 
-### 1. Componentização e Co-localização
-*   Componentes e estilos exclusivos de uma página devem residir no próprio diretório da página (ex: /src/pages/ProductDetail/ComponenteExclusivo.tsx).
-*   Apenas componentes reaproveitados por duas ou mais páginas de domínios distintos devem ser promovidos para /src/components/.
-
-### 2. Estilização Centralizada e Isolada (*.styles.ts)
-*   Toda estilização deve ser isolada em arquivos colocalizados NomeComponente.styles.ts usando SxProps<Theme> do Material UI.
-*   Estilos inline e o uso excessivo de propriedades sx no JSX são terminantemente proibidos.
+* **Front-end**: React 19 + TypeScript 5 (Vite)
+* **Design System**: Material UI (MUI) v7
+* **Formulários e Validação**: Formik + Yup
+* **Roteamento**: React Router v6 (Rotas semânticas por slugs, sem IDs técnicos na URL)
+* **Persistência**: Camada de serviços em `/src/services/` (LocalStorage / API desacoplada)
 
 ---
 
-## Diretrizes de Código e TypeScript
-*   Tipagem Forte (Zero any): O uso de any é proibido. Utilize as interfaces de /src/types.ts.
-*   Nomenclatura:
-    *   Componentes/Páginas: PascalCase (ex: ProductCard.tsx).
-    *   Hooks Customizados: camelCase iniciado com use (ex: useDebounce.ts).
-    *   Estilos: NomeComponente.styles.ts.
+## 3. Regras Mandatórias de Engenharia
+
+* **Estilização Isolada**: Proibido CSS inline ou propriedades `sx` complexas no JSX. Utilizar arquivos colocalizados `NomeComponente.styles.ts` tipados com `SxProps<Theme>`.
+* **Tipagem Estrita**: Proibido o uso de `any`. Utilizar as interfaces de `/src/types.ts`.
+* **Co-localização**: Componentes de página residem em `/src/pages/<Pagina>/`. Apenas componentes compartilhados por duas ou mais telas pertencem a `/src/components/`.
+* **Testes por Demanda**: Proibido criar testes com Jest/RTL de forma autônoma ou antecipada. A criação ocorre estritamente mediante solicitação explícita após homologação visual.
+
+---
+
+## 4. Perfil Operacional e Tom de Resposta (Sem Cortesia/Sem Disney)
+
+* **Postura**: Aja como um Engenheiro de Software Sênior/Staff. Seja conciso, pragmático, analítico e estritamente técnico.
+* **Proibições de Resposta**: Zero bajulação, zero introduções amigáveis ("Com certeza!", "Excelente pergunta!"), zero conclusões protocolares, zero emojis decorativos e zero metáforas.
+* **Entrega Direta**: Vá direto ao ponto. Responda apenas o que foi perguntado: fatos técnicos, restrições, decisões de arquitetura ou código. Elimine qualquer texto dispensável.
+

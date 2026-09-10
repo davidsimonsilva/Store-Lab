@@ -8,8 +8,8 @@ describe('userSchemas - profileSchema', () => {
       cpf: '52998224725',
       phone: '11999999999'
     };
-    const res = profileSchema.safeParse(valid);
-    expect(res.success).toBe(true);
+    const isValid = profileSchema.isValidSync(valid);
+    expect(isValid).toBe(true);
   });
 
   test('rejects short name or invalid email', () => {
@@ -17,8 +17,8 @@ describe('userSchemas - profileSchema', () => {
       name: 'Ma',
       email: 'not-an-email'
     };
-    const res = profileSchema.safeParse(invalid);
-    expect(res.success).toBe(false);
+    const isValid = profileSchema.isValidSync(invalid);
+    expect(isValid).toBe(false);
   });
 });
 
@@ -32,8 +32,8 @@ describe('userSchemas - addressSchema', () => {
       city: 'São Paulo',
       state: 'SP'
     };
-    const res = addressSchema.safeParse(valid);
-    expect(res.success).toBe(true);
+    const isValid = addressSchema.isValidSync(valid);
+    expect(isValid).toBe(true);
   });
 
   test('rejects incomplete address', () => {
@@ -45,7 +45,7 @@ describe('userSchemas - addressSchema', () => {
       city: '',
       state: 'SPO'
     };
-    const res = addressSchema.safeParse(invalid);
-    expect(res.success).toBe(false);
+    const isValid = addressSchema.isValidSync(invalid);
+    expect(isValid).toBe(false);
   });
 });

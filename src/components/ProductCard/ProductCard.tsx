@@ -37,7 +37,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const id = product.productID || product.id;
     const namePart = formatUrlName(product.name);
     setSelectedProductId(id);
-    navigate(`/produto/${namePart}-${id}`);
+    navigate(`/produto/${namePart}`);
     window.scrollTo(0, 0);
   };
 
@@ -68,7 +68,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             transition: 'transform 0.4s ease',
           }}
         />
-        
+
         <Box sx={ratingBadgeStyle}>
           <Rating 
             value={product.rating || 4.5} 

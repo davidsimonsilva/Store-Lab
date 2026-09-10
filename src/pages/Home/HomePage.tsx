@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Box, 
   Container, 
   Typography, 
   Grid, 
-  Button, 
   Chip,
-  useTheme,
-  useMediaQuery
+  useTheme
 } from '@mui/material';
 import { 
-  Plus, 
   FilterX, 
   Sparkles,
   LayoutGrid, 
@@ -21,37 +18,33 @@ import {
 } from 'lucide-react';
 import { useUIState } from '../../context/UIStateContext';
 import { MOCK_PRODUCTS } from '../../mocks/products';
-import { BannerRotativo } from './BannerRotativo';
+import { BannerRotativo } from './Banner/BannerRotativo';
 import { ProductCard } from '../../components/ProductCard/ProductCard';
-import { ProductCardSkeleton } from './ProductCardSkeleton';
+import { ProductCardSkeleton } from './Skeleton/ProductCardSkeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { ErrorBoundary } from './ErrorBoundary';
+import { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
 import { PageContainer } from '../../components/ui/PageContainer';
 import { productMatchesSearch } from '../../utils/searchUtils';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import {
   categoryHeadingStyle,
   categoryContainerStyle,
   gridTitleStyle,
-  showMoreBoxStyle,
-  showMoreButtonStyle,
 } from './Home.styles';
 
 export const HomePage: React.FC = () => {
   const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useUIState();
   const theme = useTheme();
-  
-  const isMobile = useMediaQuery('(max-width:600px)');
-  
-  const [mobileLimit, setMobileLimit] = useState<number>(10);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    document.title = 'Store-lab';
-  }, []);
-
-  useEffect(() => {
-    setMobileLimit(10);
-  }, [searchQuery, selectedCategory]);
+  useDocumentTitle({
+    title: 'Store-lab',
+    description: 'Descubra produtos inovadores, tecnologia de ponta e equipamentos premium com frete grátis e entrega rápida na StoreLab.',
+    ogTitle: 'Store-lab',
+    ogDescription: 'Descubra produtos inovadores e tecnologia de ponta com as melhores condições e entrega rápida.',
+    ogType: 'website',
+  });
 
   const categories = [
     { id: 'all', label: 'Tudo', icon: <LayoutGrid size={16} /> },
@@ -66,14 +59,6 @@ export const HomePage: React.FC = () => {
     const matchesSearch = productMatchesSearch(product, searchQuery);
     return matchesCategory && matchesSearch;
   });
-
-  const displayedProducts = (isMobile && filteredProducts.length > mobileLimit)
-    ? filteredProducts.slice(0, mobileLimit)
-    : filteredProducts;
-
-  const handleShowMore = () => {
-    setMobileLimit((prev) => prev + 10);
-  };
 
   const handleClearFilters = () => {
     setSearchQuery('');
@@ -144,7 +129,7 @@ export const HomePage: React.FC = () => {
             {searchQuery ? 'Resultados da Pesquisa' : 'Catálogo Disponível'}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-            Exibindo <strong>{displayedProducts.length}</strong> de <strong>{filteredProducts.length}</strong> produtos selecionados
+            Exibindo <strong>{filteredProducts.length}</strong> {filteredProducts.length === 1 ? 'produto selecionado' : 'produtos selecionados'}
           </Typography>
         </Box>
 
@@ -165,38 +150,16 @@ export const HomePage: React.FC = () => {
             onAction={handleClearFilters}
           />
         ) : (
-          <>
-            <Grid container spacing={3}>
-              {displayedProducts.map((product) => (
-                <Grid 
-                  key={product.id} 
-                  size={{ xs: 12, sm: 6, md: 4, lg: 3 }} 
-                >
-                  <ProductCard product={product} />
-                </Grid>
-              ))}
-            </Grid>
-
-            {isMobile && filteredProducts.length > mobileLimit && (
-              <Box 
-                sx={showMoreBoxStyle}
+          <Grid container spacing={3}>
+            {filteredProducts.map((product) => (
+              <Grid 
+                key={product.id} 
+                size={{ xs: 12, sm: 6, md: 4, lg: 3 }} 
               >
-                <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700, mb: 1.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Restam {filteredProducts.length - mobileLimit} produtos
-                </Typography>
-                <Button
-                  id="mobile-show-more-button"
-                  variant="contained"
-                  color="primary"
-                  onClick={handleShowMore}
-                  startIcon={<Plus size={16} />}
-                  sx={showMoreButtonStyle}
-                >
-                  Mostrar Mais Produtos
-                </Button>
-              </Box>
-            )}
-          </>
+                <ProductCard product={product} />
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Box>
     </PageContainer>

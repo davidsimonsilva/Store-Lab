@@ -2,22 +2,18 @@ import { lazy } from 'react';
 
 export interface RouteConfig {
   path: string;
-  element: React.LazyExoticComponent<React.ComponentType<any>>;
+  element: React.LazyExoticComponent<React.ComponentType<{}>>;
   isPrivate?: boolean;
   isGuestOnly?: boolean;
 }
 
-/**
- * Configuração centralizada de rotas da aplicação (Padrão Corporativo)
- * Facilita auditorias de segurança, SEO, logs e renderização dinâmica.
- */
 export const routesConfig: RouteConfig[] = [
   {
     path: '/',
     element: lazy(() => import('../pages/Home/HomePage')),
   },
   {
-    path: '/perfil/:userId',
+    path: '/perfil/:userName',
     element: lazy(() => import('../pages/Profile/ProfilePage')),
     isPrivate: true,
   },
@@ -27,20 +23,51 @@ export const routesConfig: RouteConfig[] = [
     isPrivate: true,
   },
   {
-    path: '/carrinho/:userId',
+    path: '/carrinho',
     element: lazy(() => import('../pages/Cart/CartPage')),
   },
   {
-    path: '/carrinho',
-    element: lazy(() => import('../pages/Cart/CartPage')),
+    path: '/rastreio',
+    element: lazy(() => import('../pages/Tracking/TrackingPage')),
+  },
+  {
+    path: '/faq',
+    element: lazy(() => import('../pages/Institutional/FAQPage')),
+  },
+  {
+    path: '/termos',
+    element: lazy(() => import('../pages/Institutional/TermsPage')),
+  },
+  {
+    path: '/privacidade',
+    element: lazy(() => import('../pages/Institutional/PrivacyPage')),
+  },
+  {
+    path: '/institucional',
+    element: lazy(() => import('../pages/Institutional/FAQPage')),
+  },
+  {
+    path: '/checkout',
+    element: lazy(() => import('../pages/Checkout/CheckoutPage')),
+    isPrivate: true,
   },
   {
     path: '/produto/:slug',
     element: lazy(() => import('../pages/ProductDetail/ProductDetailPage')),
   },
   {
+    path: '/login/:userId',
+    element: lazy(() => import('../pages/Login/LoginPage')),
+    isGuestOnly: true,
+  },
+  {
     path: '/login',
     element: lazy(() => import('../pages/Login/LoginPage')),
+    isGuestOnly: true,
+  },
+  {
+    path: '/cadastro/:userId',
+    element: lazy(() => import('../pages/Register/RegisterPage')),
     isGuestOnly: true,
   },
   {

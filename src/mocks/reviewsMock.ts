@@ -1,13 +1,4 @@
-import { Product } from '../types';
-
-export interface Review {
-  id: string;
-  userName: string;
-  rating: number;
-  date: string;
-  comment: string;
-  verified: boolean;
-}
+import { Product, Review } from '../types';
 
 const REVIEW_POOL: Record<string, string[]> = {
   "Eletrônicos / Mobile": [
@@ -71,7 +62,7 @@ export function generateReviewsForProduct(productId: string | number, category: 
       rating,
       date: dateStr,
       comment: pool[commentIdx],
-      verified: seed % 2 === 0
+      verified: seed % 2 === 0,
     });
   }
 

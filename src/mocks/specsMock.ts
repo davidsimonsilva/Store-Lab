@@ -2,22 +2,30 @@ import { Product } from '../types';
 
 export const getBasicDescription = (prod: Product): string => {
   const categoryLower = prod.category.toLowerCase();
-  
+
   if (categoryLower.includes('móveis') || categoryLower.includes('office') || prod.name.toLowerCase().includes('mesa') || prod.name.toLowerCase().includes('cadeira')) {
-    return `Uma peça com design assinado, perfeita para quem busca conforto absoluto, elegância e ergonomia superior no dia a dia. Desenvolvido meticulosamente para integrar-se ao seu ambiente com equilíbrio estético impecável e aproveitamento fluido do espaço, este móvel combina durabilidade extrema e sofisticação em cada detalhe. Sua estrutura de sustentação robusta garante estabilidade rigorosa, tornando este item o verdadeiro destaque decorativo e funcional de sua residência ou escritório.`;
+    return `Uma peça com design assinado, perfeita para quem busca conforto absoluto, elegância e ergonomia superior no dia a dia. Desenvolvido meticulosamente para integrar-se ao seu ambiente com equilíbrio estético impecável e aproveitamento fluido do espaço.
+
+Combinando durabilidade extrema e sofisticação em cada detalhe, sua estrutura de sustentação robusta garante estabilidade rigorosa, tornando este item o verdadeiro destaque decorativo e funcional de sua residência ou escritório.`;
   }
   if (categoryLower.includes('eletrônicos') || categoryLower.includes('mobile')) {
-    return `Desenvolvido com tecnologia de ponta de última geração, este dispositivo entrega um desempenho incomparável, velocidade surpreendente e uma fluidez fora de série para a sua rotina diária. Sua arquitetura de alta performance possibilita executar múltiplos processos simultâneos sem qualquer lentidão, travamento ou perda de rendimento térmico. Uma síntese magnífica de design moderno, display brilhante de altíssima fidelidade e acabamento premium refinado.`;
+    return `Desenvolvido com tecnologia de ponta de última geração, este dispositivo entrega um desempenho incomparável, velocidade surpreendente e uma fluidez fora de série para a sua rotina diária. Sua arquitetura de alta performance possibilita executar múltiplos processos simultâneos sem qualquer lentidão ou travamento.
+
+Uma síntese magnífica de design moderno, display brilhante de altíssima fidelidade e acabamento premium refinado para elevar sua experiência e produtividade ao mais alto nível.`;
   }
   if (categoryLower.includes('cuidados') || categoryLower.includes('beleza')) {
-    return `Um verdadeiro divisor de águas para a sua rotina diária de autocuidado. Este produto de qualidade premium foi formulado com ingredientes nobres cuidadosamente selecionados para promover hidratação intensa, revitalização e uma luminosidade radiante na pele. Com textura inovadora extremamente leve e um toque seco aveludado de altíssima absorção, ele nutre as camadas derme delicadamente, revelando um visual de bem-estar espetacular.`;
+    return `Um verdadeiro divisor de águas para a sua rotina diária de autocuidado. Este produto de qualidade premium foi formulado com ingredientes nobres cuidadosamente selecionados para promover hidratação intensa, revitalização e uma luminosidade radiante na pele.
+
+Com textura inovadora extremamente leve e um toque seco aveludado de altíssima absorção, ele nutre as camadas da derme delicadamente, revelando um visual de vitalidade e bem-estar saudável.`;
   }
-  return `Desenvolvido para superar todas as suas expectativas, este produto combina versatilidade inteligente, durabilidade impecável e alto rendimento em cada detalhe. Com acabamentos minuciosos e design vanguardista, oferece excelente usabilidade para facilitar o seu dia a dia. Uma escolha de prestígio e segura para clientes que exigem o melhor em elegância e custo-benefício.`;
+  return `Desenvolvido para superar todas as suas expectativas, este produto combina versatilidade inteligente, durabilidade impecável e alto rendimento em cada detalhe. Com acabamentos minuciosos e design vanguardista, oferece excelente usabilidade para o seu cotidiano.
+
+Uma escolha de prestígio e segura para clientes que exigem o melhor em elegância, qualidade construtiva e custo-benefício.`;
 };
 
 export const getTechnicalSpecifications = (prod: Product) => {
   const categoryLower = prod.category.toLowerCase();
-  
+
   if (categoryLower.includes('móveis') || categoryLower.includes('office') || prod.name.toLowerCase().includes('mesa') || prod.name.toLowerCase().includes('cadeira')) {
     return [
       { label: 'Dimensões (Metros)', value: '1,62m x 0,90m x 0,76m (C x L x A)' },

@@ -15,7 +15,7 @@ describe('AuthContext', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     expect(result.current.isLoggedIn).toBe(false);
     expect(result.current.user).toBeNull();
-    expect(result.current.anonymousUserId).toMatch(/^anon-/);
+    expect(result.current.anonymousUserId).toMatch(/^usr_/);
   });
 
   test('loginUser logs in user and persists session', () => {

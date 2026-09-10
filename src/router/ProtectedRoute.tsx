@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { useAppState } from '../context/AppStateContext';
+import { useAuth } from '../context/AuthContext';
 import { PageLoader } from '../components/ui/PageLoader';
 
 interface ProtectedRouteProps {
@@ -9,25 +9,21 @@ interface ProtectedRouteProps {
   isGuestOnly?: boolean;
 }
 
-/**
- * Componente Guard corporativo para controle de rotas privadas e exclusivas para visitantes.
- */
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   isPrivate = false,
   isGuestOnly = false,
 }) => {
-  const { user } = useAppState();
+  const { user, anonymousUserId } = useAuth();
   const location = useLocation();
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!(user && user.isLoggedIn);
 
-  // Se a rota for privada e o usuário não estiver autenticado, redireciona para o login salvando a intenção de navegação
   if (isPrivate && !isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const loginTarget = anonymousUserId ? `/login/${anonymousUserId}` : '/login';
+    return <Navigate to={loginTarget} state={{ from: location }} replace />;
   }
 
-  // Se a rota for apenas para visitantes (ex: Login, Cadastro) e o usuário já estiver logado, redireciona para a Home
   if (isGuestOnly && isAuthenticated) {
     return <Navigate to="/" replace />;
   }

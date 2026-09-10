@@ -1,15 +1,21 @@
 import React from 'react';
 import { Box, Paper, Typography, IconButton, Tooltip } from '@mui/material';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus, X } from 'lucide-react';
 import { CartItem as CartItemType } from '../../../types';
 import { getProductFallbackImage } from '../../../mocks/products';
 import { formatCurrencyBRL } from '../../../utils/formatters';
 import { ProductImage } from '../../../components/ui/ProductImage';
 import {
+  TOOLTIP_MAX_LIMIT_MESSAGE,
+  MAX_PRODUCT_PURCHASE_LIMIT,
+} from '../../../services/productQuotaService';
+import {
   cartItemPaperStyle,
   cartItemImageWrapperStyle,
+  cartItemContentStyle,
   cartItemTitleStyle,
-  quantityControlsStyle
+  cartItemRemoveButtonStyle,
+  quantityControlsStyle,
 } from './CartItem.styles';
 
 interface CartItemProps {
@@ -41,7 +47,7 @@ export const CartItem: React.FC<CartItemProps> = ({
         />
       </Box>
 
-      <Box sx={{ flexGrow: 1, width: '100%' }}>
+      <Box sx={cartItemContentStyle}>
         <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.725rem', textTransform: 'uppercase' }}>
           {item.product.category}
         </Typography>
@@ -69,14 +75,22 @@ export const CartItem: React.FC<CartItemProps> = ({
             <Typography variant="body2" sx={{ mx: 2, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif', color: '#0f172a' }}>
               {item.quantity}
             </Typography>
-            <IconButton 
-              size="small" 
-              aria-label="Aumentar quantidade"
-              onClick={() => updateCartQuantity(pId, item.quantity + 1)}
-              sx={{ color: '#475569' }}
-            >
-              <Plus size={14} strokeWidth={2.5} />
-            </IconButton>
+            <Tooltip title={item.quantity >= MAX_PRODUCT_PURCHASE_LIMIT ? TOOLTIP_MAX_LIMIT_MESSAGE : ''}>
+              <span>
+                <IconButton 
+                  size="small" 
+                  aria-label="Aumentar quantidade"
+                  onClick={() => updateCartQuantity(pId, item.quantity + 1)}
+                  disabled={item.quantity >= MAX_PRODUCT_PURCHASE_LIMIT}
+                  sx={{ 
+                    color: '#475569',
+                    '&.Mui-disabled': { color: '#cbd5e1' }
+                  }}
+                >
+                  <Plus size={14} strokeWidth={2.5} />
+                </IconButton>
+              </span>
+            </Tooltip>
           </Box>
 
           <Typography variant="body2" sx={{ fontWeight: 800, color: '#1e293b', fontSize: '0.95rem' }}>
@@ -85,19 +99,14 @@ export const CartItem: React.FC<CartItemProps> = ({
         </Box>
       </Box>
 
-      <Tooltip title="Remover item">
+      <Tooltip title="Remover do carrinho">
         <IconButton 
           aria-label="Remover item do carrinho"
           onClick={() => removeFromCart(pId)}
-          sx={{ 
-            position: { sm: 'absolute' }, 
-            top: { sm: 16 }, 
-            right: { sm: 16 },
-            color: '#94a3b8',
-            '&:hover': { color: '#ef4444', bgcolor: '#fef2f2' }
-          }}
+          sx={cartItemRemoveButtonStyle}
+          size="small"
         >
-          <Trash2 size={18} />
+          <X size={18} strokeWidth={2.2} />
         </IconButton>
       </Tooltip>
     </Paper>
@@ -105,3 +114,4 @@ export const CartItem: React.FC<CartItemProps> = ({
 };
 
 export default CartItem;
+

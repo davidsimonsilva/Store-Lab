@@ -2,6 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { mainLayoutRootStyle, mainLayoutMainContentStyle } from './MainLayout.styles';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -9,9 +10,9 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={mainLayoutRootStyle}>
       <Header />
-      <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+      <Box component="main" sx={mainLayoutMainContentStyle}>
         {children}
       </Box>
       <Footer />

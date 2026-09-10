@@ -4,11 +4,14 @@ import { MainLayout } from '../layout/MainLayout';
 import { PageLoader } from '../components/ui/PageLoader';
 import { routesConfig } from './routesConfig';
 import { ProtectedRoute } from './ProtectedRoute';
+import { useRouteSEO } from '../hooks/useRouteSEO';
+import { NotFoundPage } from '../pages/NotFound/NotFoundPage';
 
 export const AppRouter: React.FC = () => {
   const location = useLocation();
 
-  // Scroll to top on route change
+  useRouteSEO();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -34,10 +37,9 @@ export const AppRouter: React.FC = () => {
               />
             );
           })}
-          
-          {/* Redirecionamentos de Legados e fallback */}
+
           <Route path="/register" element={<Navigate to="/cadastro" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </MainLayout>
